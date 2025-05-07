@@ -9,69 +9,15 @@
 
 #include <raylib.h>
 
-#define DEBUG
-
-#define CANVAS_WIDTH 500
-#define CANVAS_HEIGHT 500
+#include "yarl.h"
 
 #define PIXEL_SIZE 1
 
-typedef uint32_t color_t;
+static void render(Yarl yarl) {
 
-static uint32_t canvas[CANVAS_HEIGHT][CANVAS_WIDTH] = { 0 };
-
-void clear(color_t color) {
-    for (int y=0; y < CANVAS_HEIGHT; ++y)
-        for (int x=0; x < CANVAS_WIDTH; ++x)
-            canvas[y][x] = color;
-}
-
-void rect(int x, int y, int w, int h, color_t color) {
-    for (int i=y; i < y+h; ++i)
-        for (int j=x; j < x+w; ++j)
-            canvas[i][j] = color;
-}
-
-void circle(int cx, int cy, int radius, color_t color) {
-    for (int y=cy-radius; y < cy+radius; ++y) {
-        for (int x=cx-radius; x < cx+radius; ++x) {
-
-            double dist = sqrt(
-                (x - cx) * (x - cx) + (y - cy) * (y - cy)
-            );
-
-            if (dist < radius)
-                canvas[y][x] = color;
-        }
-    }
-}
-
-void line(int ax, int ay, int bx, int by, color_t color) {
-
-    int   sx = MIN(ax, bx);
-    int   sy = MIN(ay, by);
-    float dy = by - ay;
-    float dx = bx - ax;
-    float m  = dy / dx;
-
-#ifdef DEBUG
-    // rect(sx, sy, fabsf(dx), fabsf(dy), 0x808080ff);
-#endif // DEBUG
-
-    for (float x=0; x < fabsf(dx); ++x) {
-        int diff = abs(ay - by);
-
-        float y = m * x + diff;
-        canvas[(size_t)fabsf(y)][sy+(size_t)x] = color;
-    }
-
-}
-
-static void render(void) {
-
-    for (size_t y=0; y < CANVAS_HEIGHT; ++y) {
-        for (size_t x=0; x < CANVAS_WIDTH; ++x) {
-            Color color = GetColor(canvas[y][x]);
+    for (int y=0; y < yarl_get_canvas_height(yarl); ++y) {
+        for (int x=0; x < yarl_get_canvas_width(yarl); ++x) {
+            Color color = GetColor(yarl_get_canvas(yarl)[y][x]);
             DrawRectangle(
                 x*PIXEL_SIZE,
                 y*PIXEL_SIZE,
@@ -85,31 +31,70 @@ static void render(void) {
 
 int main(void) {
 
+    Yarl yarl = yarl_canvas_create(500, 500);
+
     InitWindow(1600, 900, "");
 
-    clear(0x696969ff);
-    // rect(
-    //     CANVAS_WIDTH/4,
-    //     CANVAS_HEIGHT/4,
-    //     CANVAS_WIDTH/2,
-    //     CANVAS_HEIGHT/2,
-    //     0x00ffffff
-    // );
-    // circle(CANVAS_WIDTH/2, CANVAS_HEIGHT/2, 50, 0x00ff0000);
+    clear(yarl, 0x696969ff);
 
-    line(CANVAS_WIDTH/2, CANVAS_HEIGHT/2, CANVAS_WIDTH, CANVAS_HEIGHT, 0xff0000ff);
-    line(CANVAS_WIDTH/2, CANVAS_HEIGHT/2, CANVAS_WIDTH, 0, 0x00ff00ff);
-    line(CANVAS_WIDTH/2, CANVAS_HEIGHT/2, 0, 0, 0x0000ffff);
-    line(CANVAS_WIDTH/2, CANVAS_HEIGHT/2, 0, CANVAS_HEIGHT, 0xff00ffff);
+    rect(
+        yarl,
+        yarl_get_canvas_width(yarl)/4,
+        yarl_get_canvas_height(yarl)/4,
+        yarl_get_canvas_width(yarl)/2,
+        yarl_get_canvas_height(yarl)/2,
+        0x00ffffff
+    );
+
+    circle(yarl, yarl_get_canvas_width(yarl)/2, yarl_get_canvas_height(yarl)/2, 50, 0x00ff0000);
+
+    line(
+        yarl,
+        yarl_get_canvas_width(yarl)/2,
+        yarl_get_canvas_height(yarl)/2,
+        yarl_get_canvas_width(yarl),
+        yarl_get_canvas_height(yarl),
+        RED
+    );
+    line(
+        yarl,
+        yarl_get_canvas_width(yarl)/2,
+        yarl_get_canvas_height(yarl)/2,
+        yarl_get_canvas_width(yarl),
+        0,
+        BLUE
+    );
+
+    line(
+        yarl,
+        yarl_get_canvas_width(yarl)/2,
+        yarl_get_canvas_height(yarl)/2,
+        0,
+        0,
+        GREEN
+    );
+
+    line(
+        yarl,
+        yarl_get_canvas_width(yarl)/2,
+        yarl_get_canvas_height(yarl)/2,
+        0,
+        // TODO: investigate
+        yarl_get_canvas_height(yarl),
+        PINK
+    );
+
 
     while (!WindowShouldClose()) {
         BeginDrawing();
-        render();
+        ClearBackground(BLACK);
+        render(yarl);
         EndDrawing();
     }
 
     CloseWindow();
 
+    yarl_canvas_destroy(yarl);
 
 
     return 0;
