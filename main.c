@@ -1,12 +1,7 @@
 #include <raylib.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <string.h>
 #include <assert.h>
-#include <math.h>
-#include <sys/param.h>
 
 
 #include "yarl.h"
