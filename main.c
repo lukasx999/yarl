@@ -9,14 +9,15 @@
 
 #include <raylib.h>
 
+#define YARL_COLORS
 #include "yarl.h"
 
 #define PIXEL_SIZE 1
 
 static void render(Yarl yarl) {
 
-    for (int y=0; y < yarl_get_canvas_height(yarl); ++y) {
-        for (int x=0; x < yarl_get_canvas_width(yarl); ++x) {
+    for (int y=0; y < yarl_get_height(yarl); ++y) {
+        for (int x=0; x < yarl_get_width(yarl); ++x) {
             Color color = GetColor(yarl_get_canvas(yarl)[y][x]);
             DrawRectangle(
                 x*PIXEL_SIZE,
@@ -31,58 +32,58 @@ static void render(Yarl yarl) {
 
 int main(void) {
 
-    Yarl yarl = yarl_canvas_create(500, 500);
+    Yarl yarl = yarl_init(500, 500);
 
     InitWindow(1600, 900, "");
 
-    clear(yarl, 0x696969ff);
+    yarl_clear(yarl, 0x696969ff);
 
-    rect(
+    yarl_draw_rect(
         yarl,
-        yarl_get_canvas_width(yarl)/4,
-        yarl_get_canvas_height(yarl)/4,
-        yarl_get_canvas_width(yarl)/2,
-        yarl_get_canvas_height(yarl)/2,
+        yarl_get_width(yarl)/4,
+        yarl_get_height(yarl)/4,
+        yarl_get_width(yarl)/2,
+        yarl_get_height(yarl)/2,
         0x00ffffff
     );
 
-    circle(yarl, yarl_get_canvas_width(yarl)/2, yarl_get_canvas_height(yarl)/2, 50, 0x00ff0000);
+    yarl_draw_circle(yarl, yarl_get_width(yarl)/2, yarl_get_height(yarl)/2, 50, 0x00ff0000);
 
-    line(
+    yarl_draw_line(
         yarl,
-        yarl_get_canvas_width(yarl)/2,
-        yarl_get_canvas_height(yarl)/2,
-        yarl_get_canvas_width(yarl),
-        yarl_get_canvas_height(yarl),
+        yarl_get_width(yarl)/2,
+        yarl_get_height(yarl)/2,
+        yarl_get_width(yarl),
+        yarl_get_height(yarl),
         RED
     );
-    line(
+    yarl_draw_line(
         yarl,
-        yarl_get_canvas_width(yarl)/2,
-        yarl_get_canvas_height(yarl)/2,
-        yarl_get_canvas_width(yarl),
+        yarl_get_width(yarl)/2,
+        yarl_get_height(yarl)/2,
+        yarl_get_width(yarl),
         0,
         BLUE
     );
 
-    line(
+    yarl_draw_line(
         yarl,
-        yarl_get_canvas_width(yarl)/2,
-        yarl_get_canvas_height(yarl)/2,
+        yarl_get_width(yarl)/2,
+        yarl_get_height(yarl)/2,
         0,
         0,
         GREEN
     );
 
-    line(
-        yarl,
-        yarl_get_canvas_width(yarl)/2,
-        yarl_get_canvas_height(yarl)/2,
-        0,
-        // TODO: investigate
-        yarl_get_canvas_height(yarl),
-        PINK
-    );
+    // yarl_draw_line(
+    //     yarl,
+    //     yarl_get_canvas_width(yarl)/2,
+    //     yarl_get_canvas_height(yarl)/2,
+    //     0,
+    //     // TODO: investigate
+    //     yarl_get_canvas_height(yarl),
+    //     PINK
+    // );
 
 
     while (!WindowShouldClose()) {
@@ -94,7 +95,7 @@ int main(void) {
 
     CloseWindow();
 
-    yarl_canvas_destroy(yarl);
+    yarl_destroy(yarl);
 
 
     return 0;

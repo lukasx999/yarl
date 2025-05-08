@@ -9,44 +9,44 @@
     (assert(min <= max), \
     (value) > (max) ? (max) : (value) < (min) ? (min) : (value))
 
-struct YarlCanvas {
+struct YarlContext {
     int width, height;
-    color_t **canvas;
+    YarlColor **canvas;
 };
 
-Yarl yarl_canvas_create(int width, int height) {
+Yarl yarl_init(int width, int height) {
 
-    Yarl yarl = malloc(sizeof(struct YarlCanvas));
+    Yarl yarl = malloc(sizeof(struct YarlContext));
     yarl->width  = width;
     yarl->height = height;
     yarl->canvas = NULL;
 
-    yarl->canvas = malloc(yarl->height * sizeof(color_t*));
+    yarl->canvas = malloc(yarl->height * sizeof(YarlColor*));
     for (int y=0; y < yarl->height; ++y)
-        yarl->canvas[y] = calloc(yarl->width, sizeof(color_t));
+        yarl->canvas[y] = calloc(yarl->width, sizeof(YarlColor));
 
     return yarl;
 }
 
-color_t **yarl_get_canvas(const Yarl yarl) {
+YarlColor **yarl_get_canvas(const Yarl yarl) {
     return yarl->canvas;
 }
 
-int yarl_get_canvas_width(const Yarl yarl) {
+int yarl_get_width(const Yarl yarl) {
     return yarl->width;
 }
 
-int yarl_get_canvas_height(const Yarl yarl) {
+int yarl_get_height(const Yarl yarl) {
     return yarl->height;
 }
 
-void yarl_canvas_destroy(Yarl yc) {
+void yarl_destroy(Yarl yc) {
     for (int y=0; y < yc->height; ++y)
         free(yc->canvas[y]);
     free(yc->canvas);
 }
 
-void clear(Yarl yarl, color_t color) {
+void yarl_clear(Yarl yarl, YarlColor color) {
     for (int y=0; y < yarl->height; ++y)
         for (int x=0; x < yarl->height; ++x)
             yarl->canvas[y][x] = color;
@@ -54,13 +54,13 @@ void clear(Yarl yarl, color_t color) {
 
 // TODO point()
 
-void rect(Yarl yarl, int x, int y, int w, int h, color_t color) {
+void yarl_draw_rect(Yarl yarl, int x, int y, int w, int h, YarlColor color) {
     for (int i=y; i < y+h; ++i)
         for (int j=x; j < x+w; ++j)
             yarl->canvas[i][j] = color;
 }
 
-void circle(Yarl yarl, int cx, int cy, int r, color_t color) {
+void yarl_draw_circle(Yarl yarl, int cx, int cy, int r, YarlColor color) {
 
     int x0 = CLAMP(cx - r, 0, yarl->width);
     int y0 = CLAMP(cy - r, 0, yarl->height);
@@ -79,7 +79,7 @@ void circle(Yarl yarl, int cx, int cy, int r, color_t color) {
 
 }
 
-void line(Yarl yarl, int x0, int y0, int x1, int y1, color_t color) {
+void yarl_draw_line(Yarl yarl, int x0, int y0, int x1, int y1, YarlColor color) {
 
     float dy = y1 - y0;
     float dx = x1 - x0;
