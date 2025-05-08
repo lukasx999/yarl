@@ -4,8 +4,8 @@
 #include <assert.h>
 
 
-#include "yarl.h"
-#include "backend.h"
+#include "yarl/yarl.h"
+#include "yarl/backend.h"
 
 
 void backend_raylib(Yarl yarl) {
