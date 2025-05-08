@@ -16,17 +16,15 @@
 
 
 
-#define PIXEL_SIZE 1
-
-static inline void render_raylib(Yarl yarl) {
+static inline void render_raylib(Yarl yarl, int x0, int y0, float scale) {
     for (int y=0; y < yarl_get_height(yarl); ++y) {
         for (int x=0; x < yarl_get_width(yarl); ++x) {
             Color color = GetColor(yarl_get_pixel(yarl, x, y));
             DrawRectangle(
-                x*PIXEL_SIZE,
-                y*PIXEL_SIZE,
-                PIXEL_SIZE,
-                PIXEL_SIZE,
+                x0 + x * scale,
+                y0 + y * scale,
+                scale,
+                scale,
                 color
             );
         }

@@ -1,3 +1,4 @@
+#include <raylib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -11,6 +12,16 @@
 #include "yarl.h"
 #include "backend.h"
 
+
+void backend_raylib(Yarl yarl) {
+    InitWindow(1000, 1000, "yarl");
+    while (!WindowShouldClose()) {
+        BeginDrawing();
+        render_raylib(yarl, 50, 50, 1);
+        EndDrawing();
+    }
+    CloseWindow();
+}
 
 
 int main(void) {
@@ -66,6 +77,8 @@ int main(void) {
     //     PINK
     // );
 
+
+    backend_raylib(yarl);
     render_ppm(yarl, "output.ppm");
 
     yarl_destroy(yarl);
