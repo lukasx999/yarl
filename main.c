@@ -7,34 +7,15 @@
 #include <math.h>
 #include <sys/param.h>
 
-#include <raylib.h>
 
-#define YARL_COLORS
 #include "yarl.h"
+#include "backend.h"
 
-#define PIXEL_SIZE 1
 
-static void render(Yarl yarl) {
-
-    for (int y=0; y < yarl_get_height(yarl); ++y) {
-        for (int x=0; x < yarl_get_width(yarl); ++x) {
-            Color color = GetColor(yarl_get_canvas(yarl)[y][x]);
-            DrawRectangle(
-                x*PIXEL_SIZE,
-                y*PIXEL_SIZE,
-                PIXEL_SIZE,
-                PIXEL_SIZE,
-                color
-            );
-        }
-    }
-}
 
 int main(void) {
 
     Yarl yarl = yarl_init(500, 500);
-
-    InitWindow(1600, 900, "");
 
     yarl_clear(yarl, 0x696969ff);
 
@@ -55,7 +36,7 @@ int main(void) {
         yarl_get_height(yarl)/2,
         yarl_get_width(yarl),
         yarl_get_height(yarl),
-        RED
+        YARL_RED
     );
     yarl_draw_line(
         yarl,
@@ -63,7 +44,7 @@ int main(void) {
         yarl_get_height(yarl)/2,
         yarl_get_width(yarl),
         0,
-        BLUE
+        YARL_BLUE
     );
 
     yarl_draw_line(
@@ -72,7 +53,7 @@ int main(void) {
         yarl_get_height(yarl)/2,
         0,
         0,
-        GREEN
+        YARL_GREEN
     );
 
     // yarl_draw_line(
@@ -85,15 +66,7 @@ int main(void) {
     //     PINK
     // );
 
-
-    while (!WindowShouldClose()) {
-        BeginDrawing();
-        ClearBackground(BLACK);
-        render(yarl);
-        EndDrawing();
-    }
-
-    CloseWindow();
+    render_ppm(yarl, "output.ppm");
 
     yarl_destroy(yarl);
 

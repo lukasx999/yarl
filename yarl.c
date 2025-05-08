@@ -28,8 +28,8 @@ Yarl yarl_init(int width, int height) {
     return yarl;
 }
 
-YarlColor **yarl_get_canvas(const Yarl yarl) {
-    return yarl->canvas;
+YarlColor yarl_get_pixel(const Yarl yarl, int x, int y) {
+    return yarl->canvas[y][x];
 }
 
 int yarl_get_width(const Yarl yarl) {
@@ -49,15 +49,17 @@ void yarl_destroy(Yarl yc) {
 void yarl_clear(Yarl yarl, YarlColor color) {
     for (int y=0; y < yarl->height; ++y)
         for (int x=0; x < yarl->height; ++x)
-            yarl->canvas[y][x] = color;
+            yarl_draw_point(yarl, x, y, color);
 }
 
-// TODO point()
+void yarl_draw_point(Yarl yarl, int x, int y, YarlColor color) {
+    yarl->canvas[y][x] = color;
+}
 
 void yarl_draw_rect(Yarl yarl, int x, int y, int w, int h, YarlColor color) {
     for (int i=y; i < y+h; ++i)
         for (int j=x; j < x+w; ++j)
-            yarl->canvas[i][j] = color;
+            yarl_draw_point(yarl, j, i, color);
 }
 
 void yarl_draw_circle(Yarl yarl, int cx, int cy, int r, YarlColor color) {
@@ -73,7 +75,7 @@ void yarl_draw_circle(Yarl yarl, int cx, int cy, int r, YarlColor color) {
             double dist = (cx - x) * (cx - x) + (cy - y) * (cy - y);
 
             if (dist < r*r)
-                yarl->canvas[y][x] = color;
+                yarl_draw_point(yarl, x, y, color);
         }
     }
 
@@ -88,7 +90,7 @@ void yarl_draw_line(Yarl yarl, int x0, int y0, int x1, int y1, YarlColor color) 
 
     for (float x=start; x < start + fabsf(dx); ++x) {
         float y = m * (x - x0) + y0;
-        yarl->canvas[(size_t)y][(size_t)x] = color;
+        yarl_draw_point(yarl, x, y, color);
     }
 
 }
