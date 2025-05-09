@@ -1,4 +1,8 @@
-#include "backend.h"
+#include "yarl.h"
+
+#ifdef YARL_BACKEND_RAYLIB
+
+#include <raylib.h>
 
 void render_raylib(Yarl yarl, int x0, int y0, float scale) {
     for (int y=0; y < yarl_get_height(yarl); ++y) {
@@ -15,9 +19,20 @@ void render_raylib(Yarl yarl, int x0, int y0, float scale) {
     }
 }
 
-void render_ppm(Yarl yarl, const char *filename) {
+#endif // YARL_BACKEND_RAYLIB
+
+
+
+#ifdef YARL_BACKEND_PPM
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+int render_ppm(Yarl yarl, const char *filename) {
     FILE *f = fopen(filename, "wb");
-    assert(f != NULL);
+    if (f == NULL)
+        return -1;
 
     int w = yarl_get_width(yarl);
     int h = yarl_get_height(yarl);
@@ -31,4 +46,7 @@ void render_ppm(Yarl yarl, const char *filename) {
     }
 
     fclose(f);
+    return 0;
 }
+
+#endif // YARL_BACKEND_PPM

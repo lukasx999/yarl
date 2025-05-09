@@ -5,7 +5,6 @@
 
 
 #include "yarl/yarl.h"
-#include "yarl/backend.h"
 
 
 void backend_raylib(Yarl yarl) {
@@ -28,11 +27,12 @@ int main(void) {
     int height = yarl_get_height(yarl);
     int width = yarl_get_width(yarl);
 
-    yarl_clear(yarl, 0x696969ff);
+    yarl_clear(yarl, YARL_BLACK);
 
-    yarl_draw_rect(yarl, width/4, height/4, width/2, height/2, YARL_CYAN);
-    yarl_draw_circle(yarl, width/2, height/2, 50, YARL_BLACK);
-    yarl_draw_triangle_outline(yarl, 100, 100, width-100, height-100, 100, height-100, YARL_RED);
+    // yarl_draw_rect(yarl, width/4, height/4, width/2, height/2, YARL_CYAN);
+    yarl_draw_arc(yarl, width/2, height/2, 50, 45, -45, YARL_YELLOW);
+    // yarl_draw_arc(yarl, width/2, height/2, 50, 270, 90, YARL_BLACK);
+    // yarl_draw_triangle_outline(yarl, 100, 100, width-100, height-100, 100, height-100, YARL_RED);
 
     // yarl_draw_line(yarl, width/2, height/2, width, height, YARL_RED);
     // yarl_draw_line(yarl, width/2, height/2, width, 0, YARL_BLUE);

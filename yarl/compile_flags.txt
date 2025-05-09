@@ -1,0 +1,5 @@
+-DYARL_BACKEND_RAYLIB
+-DYARL_BACKEND_PPM
+-Wall
+-Wextra
+-std=c11

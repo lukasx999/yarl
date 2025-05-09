@@ -6,6 +6,8 @@
 #include <math.h>
 #include <sys/param.h>
 
+#include "util.h"
+
 // #define YARL_DEBUG
 
 #define CLAMP(value, min, max) \
@@ -31,6 +33,7 @@ struct YarlContext {
     YarlColor **canvas;
 };
 
+NO_DISCARD
 Yarl yarl_init(int width, int height) {
 
     Yarl yarl = malloc(sizeof(struct YarlContext));
@@ -76,20 +79,15 @@ void yarl_draw_point(Yarl yarl, int x, int y, YarlColor color) {
 
 void yarl_draw_rect_outline(Yarl yarl, int x, int y, int w, int h, YarlColor color) {
 
-    yarl_draw_line(yarl, x, y, x+w, y, color);
-    yarl_draw_line(yarl, x, y, x, y+h, color);
-    yarl_draw_line(yarl, x+w, y, x+w, y+h, color);
-    yarl_draw_line(yarl, x, y+h, x+w, y+h, color);
-
-    // for (int i=y; i < y+h; ++i) {
-    //     if (i == y || i == y+h-1) {
-    //         for (int j=x; j < x+w; ++j)
-    //             yarl_draw_point(yarl, j, i, color);
-    //     } else {
-    //         yarl_draw_point(yarl, x, i, color);
-    //         yarl_draw_point(yarl, x+w, i, color);
-    //     }
-    // }
+    for (int i=y; i < y+h; ++i) {
+        if (i == y || i == y+h-1) {
+            for (int j=x; j < x+w; ++j)
+                yarl_draw_point(yarl, j, i, color);
+        } else {
+            yarl_draw_point(yarl, x, i, color);
+            yarl_draw_point(yarl, x+w, i, color);
+        }
+    }
 
 }
 
@@ -107,31 +105,48 @@ void yarl_draw_rect(Yarl yarl, int x, int y, int w, int h, YarlColor color) {
             yarl_draw_point(yarl, j, i, color);
 }
 
-// TODO: too slow
-void yarl_draw_circle_outline(Yarl yarl, int cx, int cy, int r, YarlColor color) {
+// angle is in degrees
+void yarl_draw_arc_outline(Yarl yarl, int cx, int cy, int r, int start_angle, int end_angle, YarlColor color) {
 
-    // TODO: debug
+    // normalize angles
+    start_angle = start_angle % 360;
+    end_angle   = end_angle   % 360;
 
-    int x0 = CLAMP(cx - r, 0, yarl->width);
-    int y0 = CLAMP(cy - r, 0, yarl->height);
-    int x1 = CLAMP(cx + r, 0, yarl->width);
-    int y1 = CLAMP(cy + r, 0, yarl->height);
+    if (end_angle < start_angle)
+        end_angle += 360;
 
-    for (int y=y0; y < y1; y += 1) {
-        for (int x=x0; x < x1; x += 1) {
-
-            double dist = (cx - x) * (cx - x) + (cy - y) * (cy - y);
-
-            if (dist == r*r)
-                yarl_draw_point(yarl, x, y, color);
-        }
+    for (int a=start_angle; a < end_angle; ++a) {
+        int x = cx + r * cos(a * (3.14 / 180));
+        int y = cy + r * sin(a * (3.14 / 180));
+        yarl_draw_point(yarl, x, y, color);
     }
 
 }
 
-void yarl_draw_circle(Yarl yarl, int cx, int cy, int r, YarlColor color) {
+// angle is in degrees
+void yarl_draw_arc(Yarl yarl, int cx, int cy, int r, int start_angle, int end_angle, YarlColor color) {
 
-    // TODO: debug
+    // normalize angles
+    start_angle = start_angle % 360;
+    end_angle   = end_angle   % 360;
+
+    if (end_angle < start_angle)
+        end_angle += 360;
+
+    // TODO: find a better way of filling than drawing lines from center
+    for (int a=start_angle; a < end_angle; ++a) {
+        int x = cx + r * cos(a * (3.14 / 180));
+        int y = cy + r * sin(a * (3.14 / 180));
+        yarl_draw_line(yarl, cx, cy, x, y, color);
+    }
+
+}
+
+void yarl_draw_circle_outline(Yarl yarl, int cx, int cy, int r, YarlColor color) {
+    yarl_draw_arc_outline(yarl, cx, cy, r, 0, 360, color);
+}
+
+void yarl_draw_circle(Yarl yarl, int cx, int cy, int r, YarlColor color) {
 
     int x0 = CLAMP(cx - r, 0, yarl->width);
     int y0 = CLAMP(cy - r, 0, yarl->height);

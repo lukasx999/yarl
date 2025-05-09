@@ -1,7 +1,7 @@
 #ifndef _YARL_H
 #define _YARL_H
 
-#define YARL_BLACK  0x00000000
+#define YARL_BLACK  0x000000ff
 #define YARL_WHITE  0xffffffff
 #define YARL_RED    0xff0000ff
 #define YARL_GREEN  0x00ff00ff
@@ -29,11 +29,25 @@ void yarl_clear                 (Yarl yarl, YarlColor color);
 void yarl_draw_point            (Yarl yarl, int x, int y, YarlColor color);
 void yarl_draw_rect             (Yarl yarl, int x, int y, int w, int h, YarlColor color);
 void yarl_draw_rect_outline     (Yarl yarl, int x, int y, int w, int h, YarlColor color);
+// angle is in degrees
+void yarl_draw_arc_outline      (Yarl yarl, int cx, int cy, int r, int start_angle, int end_angle, YarlColor color);
+// angle is in degrees
+void yarl_draw_arc              (Yarl yarl, int cx, int cy, int r, int start_angle, int end_angle, YarlColor color);
 void yarl_draw_circle           (Yarl yarl, int cx, int cy, int r, YarlColor color);
 void yarl_draw_circle_outline   (Yarl yarl, int cx, int cy, int r, YarlColor color);
 void yarl_draw_ellipse          (Yarl yarl, int x, int y, int rx, int ry, YarlColor color);
 void yarl_draw_line             (Yarl yarl, int x0, int y0, int x1, int y1, YarlColor color);
 void yarl_draw_triangle_outline (Yarl yarl, int x0, int y0, int x1, int y1, int x2, int y2, YarlColor color);
 void yarl_draw_line_thick(Yarl yarl, int x0, int y0, int x1, int y1, YarlColor color, int thickness);
+
+// TODO: get view into entire canvas instead of iterating
+
+// TODO: OpenGL
+// TODO: Xlib
+// TODO: Wayland
+
+void render_raylib(Yarl yarl, int x0, int y0, float scale);
+// returns non-zero on failure
+int render_ppm(Yarl yarl, const char *filename);
 
 #endif // _YARL_H
