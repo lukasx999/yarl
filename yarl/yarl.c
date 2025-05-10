@@ -7,26 +7,6 @@
 #include <math.h>
 #include <sys/param.h>
 
-#include "util.h"
-
-// #define YARL_DEBUG
-
-#define CLAMP(value, min, max) \
-    (assert(min <= max), \
-    (value) > (max) ? (max) : (value) < (min) ? (min) : (value))
-
-
-#ifdef YARL_DEBUG
-#define CHECK(cond, message, ...) \
-    if (!(cond)) { \
-        printf("-- YARL ERROR --\n"); \
-        printf("at: `%s`\n", __func__); \
-        printf("cause: " message __VA_OPT__(,) __VA_ARGS__); \
-        exit(EXIT_FAILURE); \
-    }
-#else
-#define CHECK(...)
-#endif // YARL_DEBUG
 
 
 struct YarlContext {
@@ -34,22 +14,31 @@ struct YarlContext {
     YarlColor **canvas;
 };
 
-NO_DISCARD
 Yarl yarl_init(int width, int height) {
 
     Yarl yarl = malloc(sizeof(struct YarlContext));
+    if (yarl == NULL)
+        return NULL;
+
     yarl->width  = width;
     yarl->height = height;
     yarl->canvas = NULL;
 
     yarl->canvas = malloc(yarl->height * sizeof(YarlColor*));
-    for (int y=0; y < yarl->height; ++y)
+    if (yarl->canvas == NULL)
+        return NULL;
+
+    for (int y=0; y < yarl->height; ++y) {
         yarl->canvas[y] = calloc(yarl->width, sizeof(YarlColor));
+        if (yarl->canvas[y] == NULL)
+            return NULL;
+    }
 
     return yarl;
 }
 
 YarlColor yarl_get_pixel(const Yarl yarl, int x, int y) {
+    // TODO: bounds checking
     return yarl->canvas[y][x];
 }
 
@@ -67,14 +56,11 @@ void yarl_destroy(Yarl yc) {
     free(yc->canvas);
 }
 
-void yarl_clear(Yarl yarl, YarlColor color) {
+void yarl_fill(Yarl yarl, YarlColor color) {
     yarl_draw_rect(yarl, 0, 0, yarl->width, yarl->height, color);
 }
 
 void yarl_draw_point(Yarl yarl, int x, int y, YarlColor color) {
-    CHECK(y < yarl->height, "Index `y` is out of bounds\ny = %d\nheight = %d\n", y, yarl->height);
-    CHECK(x < yarl->width, "Index `x` is out of bounds\ny = %d\nwidth = %d\n", x, yarl->width);
-
     yarl->canvas[y][x] = color;
 }
 
@@ -149,10 +135,10 @@ void yarl_draw_circle_outline(Yarl yarl, int cx, int cy, int r, YarlColor color)
 
 void yarl_draw_circle(Yarl yarl, int cx, int cy, int r, YarlColor color) {
 
-    int x0 = CLAMP(cx - r, 0, yarl->width);
-    int y0 = CLAMP(cy - r, 0, yarl->height);
-    int x1 = CLAMP(cx + r, 0, yarl->width);
-    int y1 = CLAMP(cy + r, 0, yarl->height);
+    int x0 = YARL_CLAMP(cx - r, 0, yarl->width);
+    int y0 = YARL_CLAMP(cy - r, 0, yarl->height);
+    int x1 = YARL_CLAMP(cx + r, 0, yarl->width);
+    int y1 = YARL_CLAMP(cy + r, 0, yarl->height);
 
     for (int y=y0; y < y1; ++y) {
         for (int x=x0; x < x1; ++x) {
@@ -169,15 +155,14 @@ void yarl_draw_circle(Yarl yarl, int cx, int cy, int r, YarlColor color) {
 // TODO:
 void yarl_draw_ellipse(Yarl yarl, int cx, int cy, int rx, int ry, YarlColor color) {
 
-    int x0 = CLAMP(cx - rx, 0, yarl->width);
-    int y0 = CLAMP(cy - ry, 0, yarl->height);
-    int x1 = CLAMP(cx + rx, 0, yarl->width);
-    int y1 = CLAMP(cy + ry, 0, yarl->height);
+    int x0 = YARL_CLAMP(cx - rx, 0, yarl->width);
+    int y0 = YARL_CLAMP(cy - ry, 0, yarl->height);
+    int x1 = YARL_CLAMP(cx + rx, 0, yarl->width);
+    int y1 = YARL_CLAMP(cy + ry, 0, yarl->height);
 
 #ifdef YARL_DEBUG
     yarl_draw_rect_outline(yarl, x0, y0, x1-x0, y1-y0, color);
 #endif // YARL_DEBUG
-
 
     for (int y=y0; y < y1; ++y) {
         for (int x=x0; x < x1; ++x) {
@@ -236,23 +221,16 @@ void yarl_draw_triangle_outline(
 
 YarlColor yarl_lerp_color(YarlColor a, YarlColor b, float t) {
 
-    uint8_t ar = (a & 0xff000000) >> 3*8;
-    uint8_t ag = (a & 0x00ff0000) >> 2*8;
-    uint8_t ab = (a & 0x0000ff00) >> 1*8;
-
-    uint8_t br = (b & 0xff000000) >> 3*8;
-    uint8_t bg = (b & 0x00ff0000) >> 2*8;
-    uint8_t bb = (b & 0x0000ff00) >> 1*8;
-
-    uint8_t rr = YARL_LERP(ar, br, t);
-    uint8_t rg = YARL_LERP(ag, bg, t);
-    uint8_t rb = YARL_LERP(ab, bb, t);
+    uint8_t rr = YARL_LERP(YARL_COLOR_R(a), YARL_COLOR_R(b), t);
+    uint8_t rg = YARL_LERP(YARL_COLOR_G(a), YARL_COLOR_G(b), t);
+    uint8_t rb = YARL_LERP(YARL_COLOR_B(a), YARL_COLOR_B(b), t);
+    uint8_t ra = YARL_LERP(YARL_COLOR_A(a), YARL_COLOR_A(b), t);
 
     YarlColor out =
         (rr << 3*8) |
         (rg << 2*8) |
         (rb << 1*8) |
-        0x000000ff;
+        ra;
 
     return out;
 

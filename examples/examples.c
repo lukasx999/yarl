@@ -9,19 +9,18 @@
 
 void pacman(Yarl yarl) {
 
-    yarl_clear(yarl, YARL_BLACK);
+    yarl_fill(yarl, YARL_BLACK);
     yarl_draw_arc(
         yarl,
         yarl_get_width(yarl)  / 2,
         yarl_get_height(yarl) / 2,
-        50,
+        150,
         35,
         -35,
         YARL_YELLOW
     );
 
-    int ret = render_ppm(yarl, "pacman.ppm");
-    assert(ret == 0);
+    assert(yarl_render_ppm(yarl, "pacman.ppm") == 0);
 
 }
 
@@ -30,7 +29,7 @@ void gradient(Yarl yarl) {
     int w = yarl_get_width(yarl);
     int h = yarl_get_height(yarl);
 
-    yarl_clear(yarl, YARL_BLACK);
+    yarl_fill(yarl, YARL_BLACK);
 
     for (int i=0; i < w; ++i) {
         int range = ceil(w / 255.);
@@ -38,7 +37,7 @@ void gradient(Yarl yarl) {
         yarl_draw_rect(yarl, i, 0, 1, h, color);
     }
 
-    render_ppm(yarl, "gradient.ppm");
+    assert(yarl_render_ppm(yarl, "gradient.ppm") == 0);
 
 }
 
@@ -47,7 +46,7 @@ void grid(Yarl yarl) {
     int w = yarl_get_width(yarl);
     int h = yarl_get_height(yarl);
 
-    yarl_clear(yarl, YARL_BLACK);
+    yarl_fill(yarl, YARL_BLACK);
 
     int size = 5;
     int spacing = 1;
@@ -67,7 +66,7 @@ void grid(Yarl yarl) {
         }
     }
 
-    render_ppm(yarl, "grid.ppm");
+    assert(yarl_render_ppm(yarl, "grid.ppm") == 0);
 }
 
 void rectangles(Yarl yarl) {
@@ -75,7 +74,7 @@ void rectangles(Yarl yarl) {
     int w = yarl_get_width(yarl);
     int h = yarl_get_height(yarl);
 
-    yarl_clear(yarl, YARL_BLACK);
+    yarl_fill(yarl, YARL_BLACK);
     yarl_draw_rect(yarl, w/4, h/4, w/2, h/2, YARL_BLUE);
 
     yarl_draw_rect(yarl, w/8, h/8, w/4, h/4, YARL_RED);
@@ -83,7 +82,7 @@ void rectangles(Yarl yarl) {
     yarl_draw_rect(yarl, w - 3*(w/8), h/8, w/4, h/4, YARL_RED);
     yarl_draw_rect(yarl, w - 3*(w/8), h - 3*(h/8), w/4, 2*(h/8), YARL_RED);
 
-    render_ppm(yarl, "rectangles.ppm");
+    assert(yarl_render_ppm(yarl, "rectangles.ppm") == 0);
 }
 
 int main(void) {

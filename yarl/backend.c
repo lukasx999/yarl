@@ -1,10 +1,19 @@
 #include "yarl.h"
 
+
+// TODO: get view into entire canvas instead of iterating
+
+// TODO: OpenGL
+// TODO: Xlib
+// TODO: Wayland
+
+
+
 #ifdef YARL_BACKEND_RAYLIB
 
 #include <raylib.h>
 
-void render_raylib(Yarl yarl, int x0, int y0, float scale) {
+void yarl_render_raylib(Yarl yarl, int x0, int y0, float scale) {
     for (int y=0; y < yarl_get_height(yarl); ++y) {
         for (int x=0; x < yarl_get_width(yarl); ++x) {
             Color color = GetColor(yarl_get_pixel(yarl, x, y));
@@ -28,7 +37,7 @@ void render_raylib(Yarl yarl, int x0, int y0, float scale) {
 #include <stdio.h>
 #include <stdlib.h>
 
-int render_ppm(Yarl yarl, const char *filename) {
+int yarl_render_ppm(Yarl yarl, const char *filename) {
     FILE *f = fopen(filename, "wb");
     if (f == NULL)
         return -1;

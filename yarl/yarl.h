@@ -1,6 +1,10 @@
 #ifndef _YARL_H
 #define _YARL_H
 
+//
+// Yarl Color Utilities
+//
+
 #define YARL_BLACK  0x000000ff
 #define YARL_WHITE  0xffffffff
 #define YARL_RED    0xff0000ff
@@ -12,48 +16,88 @@
 #define YARL_PURPLE 0x800080ff
 #define YARL_GREY   0x808080ff
 
-// 4 bytes: 1. red, 2. green, 3. blue, 4. alpha
-// alpha may be discarded on platforms that dont support it
+#define YARL_COLOR_R(color) \
+    (((color) & 0xff000000) >> 3*8)
+
+#define YARL_COLOR_G(color) \
+    (((color) & 0x00ff0000) >> 2*8)
+
+#define YARL_COLOR_B(color) \
+    (((color) & 0x0000ff00) >> 1*8)
+
+#define YARL_COLOR_A(color) \
+    ((color) & 0x000000ff)
+
+
+
+//
+// Yarl Types
+//
+
+/// 4 bytes: 1. red, 2. green, 3. blue, 4. alpha
+/// alpha may be discarded on platforms that dont support it
 typedef unsigned int YarlColor;
 
 typedef struct YarlContext* Yarl;
 
+
+
+//
+// Yarl State Management
+//
+
+/// Returns `NULL` on failure
 Yarl yarl_init(int width, int height);
 YarlColor yarl_get_pixel(const Yarl yarl, int x, int y);
-// Returns the last index, instead of the total width, to stop users from making off-by-one errors
+/// Returns the last index, instead of the total width, to stop users from making off-by-one errors
 int yarl_get_width(const Yarl yarl);
-// Returns the last index, instead of the total width, to stop users from making off-by-one errors
+/// Returns the last index, instead of the total width, to stop users from making off-by-one errors
 int yarl_get_height(const Yarl yarl);
 void yarl_destroy(Yarl yc);
 
-void yarl_clear                 (Yarl yarl, YarlColor color);
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Yarl Drawing API
+///////////////////////////////////////////////////////////////////////////////
+
+void yarl_fill                  (Yarl yarl, YarlColor color);
 void yarl_draw_point            (Yarl yarl, int x, int y, YarlColor color);
 void yarl_draw_rect             (Yarl yarl, int x, int y, int w, int h, YarlColor color);
 void yarl_draw_rect_outline     (Yarl yarl, int x, int y, int w, int h, YarlColor color);
-// angle is in degrees
+/// angle is in degrees
 void yarl_draw_arc_outline      (Yarl yarl, int cx, int cy, int r, int start_angle, int end_angle, YarlColor color);
-// angle is in degrees
+/// angle is in degrees
 void yarl_draw_arc              (Yarl yarl, int cx, int cy, int r, int start_angle, int end_angle, YarlColor color);
 void yarl_draw_circle           (Yarl yarl, int cx, int cy, int r, YarlColor color);
 void yarl_draw_circle_outline   (Yarl yarl, int cx, int cy, int r, YarlColor color);
 void yarl_draw_ellipse          (Yarl yarl, int x, int y, int rx, int ry, YarlColor color);
 void yarl_draw_line             (Yarl yarl, int x0, int y0, int x1, int y1, YarlColor color);
 void yarl_draw_triangle_outline (Yarl yarl, int x0, int y0, int x1, int y1, int x2, int y2, YarlColor color);
-void yarl_draw_line_thick(Yarl yarl, int x0, int y0, int x1, int y1, YarlColor color, int thickness);
+void yarl_draw_line_thick       (Yarl yarl, int x0, int y0, int x1, int y1, YarlColor color, int thickness);
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Yarl Utilities
+///////////////////////////////////////////////////////////////////////////////
+
+#define YARL_CLAMP(value, min, max) \
+    (assert(min <= max), \
+    (value) > (max) ? (max) : (value) < (min) ? (min) : (value))
 
 #define YARL_LERP(a, b, t) \
     ((a) + (t) * ((b) - (a)))
 
 YarlColor yarl_lerp_color(YarlColor a, YarlColor b, float t);
 
-// TODO: get view into entire canvas instead of iterating
 
-// TODO: OpenGL
-// TODO: Xlib
-// TODO: Wayland
+///////////////////////////////////////////////////////////////////////////////
+// Yarl Backends
+///////////////////////////////////////////////////////////////////////////////
 
-void render_raylib(Yarl yarl, int x0, int y0, float scale);
+void yarl_render_raylib(Yarl yarl, int x0, int y0, float scale);
 // returns non-zero on failure
-int render_ppm(Yarl yarl, const char *filename);
+int yarl_render_ppm(Yarl yarl, const char *filename);
 
 #endif // _YARL_H
