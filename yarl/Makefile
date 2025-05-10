@@ -3,9 +3,13 @@ CFLAGS=-Wall -Wextra -std=c11 -pedantic -ggdb -O0
 LIBS=-lraylib -lm
 AR=ar
 ARFLAGS=rcs
-FEATURES=-DYARL_BACKEND_RAYLIB -DYARL_BACKEND_PPM
 OBJS=yarl.o backend.o
 DEPS=yarl.h
+WEBCC=clang
+WEBFLAGS=--target=wasm32-wasi --sysroot=/usr/share/wasi-sysroot/ --no-standard-libraries
+FEATURES=\
+-DYARL_BACKEND_RAYLIB \
+-DYARL_BACKEND_PPM
 
 static: libyarl.a
 shared: libyarl.so
@@ -13,6 +17,10 @@ all: shared static doc test
 
 doc:
 	doxygen
+
+web:
+	$(WEBCC) $(WEBFLAGS) $(FEATURES) -c yarl.c -o yarl.o
+	$(AR) $(ARFLAGS) libyarl.a yarl.o
 
 test: test.o static
 	@$(CC) $(CFLAGS) $< libyarl.a -o test -lm

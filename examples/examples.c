@@ -33,7 +33,7 @@ void gradient(Yarl yarl) {
 
     for (int i=0; i < w; ++i) {
         int range = ceil(w / 255.);
-        YarlColor color = yarl_lerp_color(YARL_BLACK, YARL_RED, i/range);
+        YarlColor color = yarl_lerp_color(YARL_BLACK, YARL_RED, i/range+1);
         yarl_draw_rect(yarl, i, 0, 1, h, color);
     }
 
