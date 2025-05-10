@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <stdint.h>
 #include <math.h>
 #include <sys/param.h>
 
@@ -230,5 +231,29 @@ void yarl_draw_triangle_outline(
     yarl_draw_line(yarl, x0, y0, x1, y1, color);
     yarl_draw_line(yarl, x0, y0, x2, y2, color);
     yarl_draw_line(yarl, x1, y1, x2, y2, color);
+
+}
+
+YarlColor yarl_lerp_color(YarlColor a, YarlColor b, float t) {
+
+    uint8_t ar = (a & 0xff000000) >> 3*8;
+    uint8_t ag = (a & 0x00ff0000) >> 2*8;
+    uint8_t ab = (a & 0x0000ff00) >> 1*8;
+
+    uint8_t br = (b & 0xff000000) >> 3*8;
+    uint8_t bg = (b & 0x00ff0000) >> 2*8;
+    uint8_t bb = (b & 0x0000ff00) >> 1*8;
+
+    uint8_t rr = YARL_LERP(ar, br, t);
+    uint8_t rg = YARL_LERP(ag, bg, t);
+    uint8_t rb = YARL_LERP(ab, bb, t);
+
+    YarlColor out =
+        (rr << 3*8) |
+        (rg << 2*8) |
+        (rb << 1*8) |
+        0x000000ff;
+
+    return out;
 
 }

@@ -10,6 +10,7 @@
 #define YARL_YELLOW 0xffff00ff
 #define YARL_PINK   0xff00ffff
 #define YARL_PURPLE 0x800080ff
+#define YARL_GREY   0x808080ff
 
 // 4 bytes: 1. red, 2. green, 3. blue, 4. alpha
 // alpha may be discarded on platforms that dont support it
@@ -39,6 +40,11 @@ void yarl_draw_ellipse          (Yarl yarl, int x, int y, int rx, int ry, YarlCo
 void yarl_draw_line             (Yarl yarl, int x0, int y0, int x1, int y1, YarlColor color);
 void yarl_draw_triangle_outline (Yarl yarl, int x0, int y0, int x1, int y1, int x2, int y2, YarlColor color);
 void yarl_draw_line_thick(Yarl yarl, int x0, int y0, int x1, int y1, YarlColor color, int thickness);
+
+#define YARL_LERP(a, b, t) \
+    ((a) + (t) * ((b) - (a)))
+
+YarlColor yarl_lerp_color(YarlColor a, YarlColor b, float t);
 
 // TODO: get view into entire canvas instead of iterating
 
