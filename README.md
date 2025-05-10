@@ -9,7 +9,7 @@ $ make <flags>
 ```
 
 ### Available build flags:
-- static (*default*)
-- shared
-- doc
-- test
+- `static` (*default*)
+- `shared`
+- `doc`
+- `test`
