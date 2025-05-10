@@ -5,6 +5,4 @@ void render(void) {
 
     yarl_fill(yarl, YARL_BLUE);
     yarl_draw_rect(yarl, 100, 100, 300, 300, YARL_BLACK);
-
-    yarl_destroy(yarl);
 }

@@ -1,11 +1,10 @@
-#include <assert.h>
-#include <stdio.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <math.h>
 
-#include "../yarl/yarl.h"
+#include <yarl.h>
 
-#define CANVAS_WIDTH 500
-#define CANVAS_HEIGHT 500
+
 
 void pacman(Yarl yarl) {
 
@@ -19,8 +18,6 @@ void pacman(Yarl yarl) {
         -35,
         YARL_YELLOW
     );
-
-    assert(yarl_render_ppm(yarl, "pacman.ppm") == 0);
 
 }
 
@@ -37,8 +34,6 @@ void gradient(Yarl yarl) {
         yarl_draw_rect(yarl, i, 0, 1, h, color);
     }
 
-    assert(yarl_render_ppm(yarl, "gradient.ppm") == 0);
-
 }
 
 void grid(Yarl yarl) {
@@ -48,7 +43,7 @@ void grid(Yarl yarl) {
 
     yarl_fill(yarl, YARL_BLACK);
 
-    int size = 5;
+    int size = 50;
     int spacing = 1;
 
     YarlColor color = YARL_BLUE;
@@ -66,7 +61,6 @@ void grid(Yarl yarl) {
         }
     }
 
-    assert(yarl_render_ppm(yarl, "grid.ppm") == 0);
 }
 
 void rectangles(Yarl yarl) {
@@ -82,19 +76,45 @@ void rectangles(Yarl yarl) {
     yarl_draw_rect(yarl, w - 3*(w/8), h/8, w/4, h/4, YARL_RED);
     yarl_draw_rect(yarl, w - 3*(w/8), h - 3*(h/8), w/4, 2*(h/8), YARL_RED);
 
-    assert(yarl_render_ppm(yarl, "rectangles.ppm") == 0);
 }
 
-int main(void) {
-
-    Yarl yarl = yarl_init(CANVAS_WIDTH, CANVAS_HEIGHT);
-
-    pacman(yarl);
-    rectangles(yarl);
-    grid(yarl);
-    gradient(yarl);
-
-    yarl_destroy(yarl);
-
-    return 0;
+void japan(Yarl yarl) {
+    int w = yarl_get_width(yarl);
+    int h = yarl_get_height(yarl);
+    yarl_fill(yarl, YARL_WHITE);
+    yarl_draw_circle(yarl, w/2, h/2, 100, YARL_RED);
 }
+
+void circle_gradient(Yarl yarl) {
+
+    int w = yarl_get_width(yarl);
+    int h = yarl_get_height(yarl);
+    yarl_fill(yarl, YARL_BLACK);
+
+    for (int i=w/2; i > 0; --i) {
+        YarlColor color = yarl_lerp_color(YARL_RED, YARL_BLUE, i);
+        yarl_draw_circle(yarl, w/2, h/2, i, color);
+    }
+
+}
+
+
+
+typedef struct {
+    void (*fn)(Yarl);
+    const char *name;
+} Example;
+
+#define EXAMPLE(func) \
+    { .fn = func, .name = #func }
+
+Example examples[] = {
+    EXAMPLE(circle_gradient),
+    EXAMPLE(pacman),
+    EXAMPLE(gradient),
+    EXAMPLE(grid),
+    EXAMPLE(rectangles),
+    EXAMPLE(japan),
+};
+
+size_t examples_size = sizeof(examples) / sizeof(*examples);

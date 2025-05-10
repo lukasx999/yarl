@@ -1,17 +1,13 @@
 CFLAGS=-Wall -Wextra -std=c11 -pedantic -O3
-LIBS=-lm -lraylib
+LIBS=-lm -lraylib -lX11 -lGL -lglfw
 
-all: examples
+usage:
+	@echo "Please specify the name of the example file (without file extension) as the second argument to make."
 
-examples: examples.c
-	@make -C ../yarl static
-	@echo Building Library
-	@cc $(CFLAGS) $(LIBS) -o examples $< ../yarl/libyarl.a -I../yarl
-	@echo Building Examples
-	@./examples
-	@echo Running Examples
+%: %.c
+	cc $(CFLAGS) $< -o $@ ../yarl/libyarl.a -I../yarl $(LIBS)
 
 clean:
-	rm examples *.ppm
+	rm ./ppm/*
 
-.PHONY: clean
+.PHONY: clean, usage
