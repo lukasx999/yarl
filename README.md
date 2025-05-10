@@ -11,5 +11,6 @@ $ make <flags>
 ### Available build flags:
 - `static` (*default*)
 - `shared`
-- `doc`
+- `doc` (requires `doxygen`)
 - `test`
+- `web` (requires `wasi-libc`)

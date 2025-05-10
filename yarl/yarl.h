@@ -28,6 +28,7 @@
 #define YARL_COLOR_A(color) \
     ((color) & 0x000000ff)
 
+// TODO: consider a struct YarlColor
 
 
 //
@@ -90,14 +91,5 @@ void yarl_draw_line_thick       (Yarl yarl, int x0, int y0, int x1, int y1, Yarl
     ((a) + (t) * ((b) - (a)))
 
 YarlColor yarl_lerp_color(YarlColor a, YarlColor b, float t);
-
-
-///////////////////////////////////////////////////////////////////////////////
-// Yarl Backends
-///////////////////////////////////////////////////////////////////////////////
-
-void yarl_render_raylib(Yarl yarl, int x0, int y0, float scale);
-// returns non-zero on failure
-int yarl_render_ppm(Yarl yarl, const char *filename);
 
 #endif // _YARL_H

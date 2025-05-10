@@ -2,4 +2,4 @@
 set -euxo pipefail
 
 make -BC yarl
-cc main.c -I./yarl -L./yarl -lyarl -Wl,-rpath=./yarl -o main -lraylib
+cc main.c ./yarl/libyarl.a -I./yarl -o main -lraylib -lm -lX11

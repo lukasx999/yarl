@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdbool.h>
 #include <math.h>
 #include <sys/param.h>
 
@@ -127,6 +129,7 @@ void yarl_draw_arc(Yarl yarl, int cx, int cy, int r, int start_angle, int end_an
     }
 
 }
+
 
 void yarl_draw_circle_outline(Yarl yarl, int cx, int cy, int r, YarlColor color) {
     yarl_draw_arc_outline(yarl, cx, cy, r, 0, 360, color);

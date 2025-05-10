@@ -1,15 +1,12 @@
 CC=cc
 CFLAGS=-Wall -Wextra -std=c11 -pedantic -ggdb -O0
-LIBS=-lraylib -lm
+LIBS=-lm
 AR=ar
 ARFLAGS=rcs
-OBJS=yarl.o backend.o
+OBJS=yarl.o
 DEPS=yarl.h
 WEBCC=clang
 WEBFLAGS=--target=wasm32-wasi --sysroot=/usr/share/wasi-sysroot/ --no-standard-libraries
-FEATURES=\
--DYARL_BACKEND_RAYLIB \
--DYARL_BACKEND_PPM
 
 static: libyarl.a
 shared: libyarl.so
