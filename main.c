@@ -15,7 +15,10 @@ void draw(Yarl yarl) {
 
     yarl_fill(yarl, YARL_GREY);
     yarl_draw_arc(yarl, w/2, h/2, 150, 45, -45, YARL_YELLOW);
-    yarl_draw_arc(yarl, w/2, h/2, 150, 0, 45, YARL_BLUE);
+    // FIXME:
+    // yarl_draw_arc(yarl, w/2, h/2, 150, -45, 45, YARL_BLUE);
+    // FIXME:
+    // yarl_draw_arc(yarl, w/2, h/2, 150, 180, 45, YARL_RED);
 
     yarl_render_ppm(yarl, "output.ppm");
 }
