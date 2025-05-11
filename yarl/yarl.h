@@ -76,6 +76,7 @@ void yarl_draw_ellipse          (Yarl yarl, int x, int y, int rx, int ry, YarlCo
 void yarl_draw_line             (Yarl yarl, int x0, int y0, int x1, int y1, YarlColor color);
 void yarl_draw_triangle_outline (Yarl yarl, int x0, int y0, int x1, int y1, int x2, int y2, YarlColor color);
 void yarl_draw_line_thick       (Yarl yarl, int x0, int y0, int x1, int y1, YarlColor color, int thickness);
+void yarl_draw_triangle         (Yarl yarl, int x0, int y0, int w, int h, YarlColor color);
 
 
 

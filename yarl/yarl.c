@@ -80,14 +80,6 @@ void yarl_draw_rect_outline(Yarl yarl, int x, int y, int w, int h, YarlColor col
 }
 
 void yarl_draw_rect(Yarl yarl, int x, int y, int w, int h, YarlColor color) {
-
-#ifdef YARL_DEBUG
-    yarl_draw_circle(yarl, x, y, 3, color);
-    yarl_draw_circle(yarl, x+w, y, 3, color);
-    yarl_draw_circle(yarl, x, y+h, 3, color);
-    yarl_draw_circle(yarl, x+h, y+h, 3, color);
-#endif // YARL_DEBUG
-
     for (int i=y; i < y+h; ++i)
         for (int j=x; j < x+w; ++j)
             yarl_draw_point(yarl, j, i, color);
@@ -130,7 +122,6 @@ void yarl_draw_arc(Yarl yarl, int cx, int cy, int r, int start_angle, int end_an
 
 }
 
-
 void yarl_draw_circle_outline(Yarl yarl, int cx, int cy, int r, YarlColor color) {
     yarl_draw_arc_outline(yarl, cx, cy, r, 0, 360, color);
 }
@@ -162,13 +153,21 @@ void yarl_draw_ellipse(Yarl yarl, int cx, int cy, int rx, int ry, YarlColor colo
     int x1 = YARL_CLAMP(cx + rx, 0, yarl->width);
     int y1 = YARL_CLAMP(cy + ry, 0, yarl->height);
 
-#ifdef YARL_DEBUG
-    yarl_draw_rect_outline(yarl, x0, y0, x1-x0, y1-y0, color);
-#endif // YARL_DEBUG
-
     for (int y=y0; y < y1; ++y) {
         for (int x=x0; x < x1; ++x) {
-            yarl_draw_point(yarl, x, y, color);
+
+            int w = x1 - x0;
+            int h = y1 - y0;
+            float nx = (float) x / w;
+            float ny = (float) y / h;
+
+            float dist = sqrtf(nx*nx + ny*ny);
+            float radius = (float) ry / h;
+
+            if (dist < radius) {
+                yarl_draw_point(yarl, x, y, color);
+            }
+
         }
     }
 
@@ -218,6 +217,22 @@ void yarl_draw_triangle_outline(
     yarl_draw_line(yarl, x0, y0, x1, y1, color);
     yarl_draw_line(yarl, x0, y0, x2, y2, color);
     yarl_draw_line(yarl, x1, y1, x2, y2, color);
+
+}
+
+void yarl_draw_triangle(Yarl yarl, int x0, int y0, int w, int h, YarlColor color) {
+
+    float m = (float) h / w;
+
+    for (int x=x0; x < x0 + w; ++x) {
+
+        int y_end = yarl->height - x * m;
+
+        for (int y=y_end; y < y0; ++y) {
+            yarl_draw_point(yarl, x, y, color);
+        }
+
+    }
 
 }
 
