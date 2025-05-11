@@ -14,10 +14,8 @@ void draw(Yarl yarl) {
     int w = yarl_get_width(yarl);
 
     yarl_fill(yarl, YARL_GREY);
-
-    yarl_draw_triangle(yarl, 0, h, w, h, YARL_YELLOW);
-    yarl_draw_triangle(yarl, 0, h, w/2, h/2, YARL_RED);
-    yarl_draw_triangle(yarl, 0, h, w/4, h/4, YARL_BLUE);
+    yarl_draw_arc(yarl, w/2, h/2, 150, 45, -45, YARL_YELLOW);
+    yarl_draw_arc(yarl, w/2, h/2, 150, 0, 45, YARL_BLUE);
 
     yarl_render_ppm(yarl, "output.ppm");
 }

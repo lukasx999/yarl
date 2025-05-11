@@ -91,6 +91,12 @@ void yarl_draw_triangle         (Yarl yarl, int x0, int y0, int w, int h, YarlCo
 #define YARL_LERP(a, b, t) \
     ((a) + (t) * ((b) - (a)))
 
+#define YARL_RAD_TO_DEG(rads) \
+    ((rads) * (180. / 3.14))
+
+#define YARL_DEG_TO_RAD(rads) \
+    ((rads) * (3.14 / 180.))
+
 YarlColor yarl_lerp_color(YarlColor a, YarlColor b, float t);
 
 #endif // _YARL_H

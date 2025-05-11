@@ -2,7 +2,7 @@
 set -euxo pipefail
 
 if [[ $# != 0 && $1 == "live" ]]; then
-    find . | entr -s "sh -c ./build.sh && ./main && kill -SIGHUP $(pidof mupdf)"
+    find . | entr -cs "sh -c ./build.sh && echo 'Build successful' && time ./main && echo 'Run successful' && kill -SIGHUP $(pidof mupdf)"
 else
     make -BC yarl
     cc main.c ./yarl/libyarl.a -I./yarl -o main -lraylib -lm -lX11

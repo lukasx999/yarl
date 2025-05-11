@@ -96,14 +96,13 @@ void yarl_draw_arc_outline(Yarl yarl, int cx, int cy, int r, int start_angle, in
         end_angle += 360;
 
     for (int a=start_angle; a < end_angle; ++a) {
-        int x = cx + r * cos(a * (3.14 / 180));
-        int y = cy + r * sin(a * (3.14 / 180));
+        int x = cx + r * cos(YARL_DEG_TO_RAD(a));
+        int y = cy + r * sin(YARL_DEG_TO_RAD(a));
         yarl_draw_point(yarl, x, y, color);
     }
 
 }
 
-// angle is in degrees
 void yarl_draw_arc(Yarl yarl, int cx, int cy, int r, int start_angle, int end_angle, YarlColor color) {
 
     // normalize angles
@@ -113,14 +112,121 @@ void yarl_draw_arc(Yarl yarl, int cx, int cy, int r, int start_angle, int end_an
     if (end_angle < start_angle)
         end_angle += 360;
 
-    // TODO: find a better way of filling than drawing lines from center
-    for (int a=start_angle; a < end_angle; ++a) {
-        int x = cx + r * cos(a * (3.14 / 180));
-        int y = cy + r * sin(a * (3.14 / 180));
-        yarl_draw_line(yarl, cx, cy, x, y, color);
+    int x0 = YARL_CLAMP(cx - r, 0, yarl->width);
+    int y0 = YARL_CLAMP(cy - r, 0, yarl->height);
+    int x1 = YARL_CLAMP(cx + r, 0, yarl->width);
+    int y1 = YARL_CLAMP(cy + r, 0, yarl->height);
+
+    printf("end: %d\n", end_angle);
+
+    for (int x=x0; x < x1; ++x) {
+    for (int y=y0; y < y1; ++y) {
+    // int x = 400, y = 100;
+    //     {
+    //      {
+
+            // yarl_draw_circle(yarl, cx, cy, 5, YARL_BLUE);
+            // yarl_draw_circle(yarl, x, y, 5, YARL_RED);
+
+            // position relative to arc middle
+            int mx = x - cx;
+            int my = cy - y;
+
+            float angle = floorf(YARL_RAD_TO_DEG(atanf((float) my / mx)));
+            if (my > 0)
+                angle = 360 - angle;
+
+            if (mx < 0)
+                angle = 180 - angle;
+
+            angle = fabsf(angle);
+
+            printf("%f\n", angle);
+
+
+            for (int a=start_angle; a < end_angle; ++a) {
+
+                // coordinates of arc outline
+                int xo = r * cos(YARL_DEG_TO_RAD(a));
+                int yo = r * sin(YARL_DEG_TO_RAD(a));
+
+                int leno = xo*xo + yo*yo;
+                int len  = mx*mx + my*my;
+
+                if (angle == a && len < leno)
+                    yarl_draw_point(yarl, x, y, color);
+            }
+
+        }
     }
 
 }
+
+
+
+// TODO: use M_PI
+
+// angle is in degrees
+// void yarl_draw_arc(Yarl yarl, int cx, int cy, int r, int start_angle, int end_angle, YarlColor color) {
+//
+//     // normalize angles
+//     start_angle = start_angle % 360;
+//     end_angle   = end_angle   % 360;
+//
+//     if (end_angle < start_angle)
+//         end_angle += 360;
+//
+//     int x0 = YARL_CLAMP(cx - r, 0, yarl->width);
+//     int y0 = YARL_CLAMP(cy - r, 0, yarl->height);
+//     int x1 = YARL_CLAMP(cx + r, 0, yarl->width);
+//     int y1 = YARL_CLAMP(cy + r, 0, yarl->height);
+//
+//     // for (int x=x0; x < x1; ++x) {
+//     // for (int y=y0; y < y1; ++y) {
+//     int x = 100, y = 100;
+//     {
+//         {
+//
+//             yarl_draw_circle(yarl, cx, cy, 5, YARL_BLUE);
+//             yarl_draw_circle(yarl, x, y, 5, YARL_RED);
+//
+//             // position relative to arc middle
+//             int mx = x - cx;
+//             int my = cy - y;
+//             // my = -my;
+//
+//             float lenm = sqrt(mx*mx + my*my);
+//
+//             float bx = x1 - cx;
+//             float by = 0;
+//             float lenb = sqrt(bx*bx + by*by);
+//
+//             float dotmb = mx*my + bx*by;
+//
+//             float angle = floorf(YARL_RAD_TO_DEG(acosf(dotmb / (lenm*lenb))));
+//
+//             if (mx < 0)
+//                 angle = 180 - angle;
+//
+//             printf("angle: %f\n", angle);
+//
+//             for (int a=start_angle; a < end_angle; ++a) {
+//
+//                 // coordinates of arc outline
+//                 int xo = r * cos(YARL_DEG_TO_RAD(a));
+//                 int yo = r * sin(YARL_DEG_TO_RAD(a));
+//
+//                 int leno = xo*xo + yo*yo;
+//                 int len  = mx*mx + my*my;
+//
+//                 if (angle == a && len < leno)
+//                     yarl_draw_point(yarl, x, y, color);
+//             }
+//
+//         }
+//     }
+//
+// }
 
 void yarl_draw_circle_outline(Yarl yarl, int cx, int cy, int r, YarlColor color) {
     yarl_draw_arc_outline(yarl, cx, cy, r, 0, 360, color);
@@ -147,30 +253,7 @@ void yarl_draw_circle(Yarl yarl, int cx, int cy, int r, YarlColor color) {
 
 // TODO:
 void yarl_draw_ellipse(Yarl yarl, int cx, int cy, int rx, int ry, YarlColor color) {
-
-    int x0 = YARL_CLAMP(cx - rx, 0, yarl->width);
-    int y0 = YARL_CLAMP(cy - ry, 0, yarl->height);
-    int x1 = YARL_CLAMP(cx + rx, 0, yarl->width);
-    int y1 = YARL_CLAMP(cy + ry, 0, yarl->height);
-
-    for (int y=y0; y < y1; ++y) {
-        for (int x=x0; x < x1; ++x) {
-
-            int w = x1 - x0;
-            int h = y1 - y0;
-            float nx = (float) x / w;
-            float ny = (float) y / h;
-
-            float dist = sqrtf(nx*nx + ny*ny);
-            float radius = (float) ry / h;
-
-            if (dist < radius) {
-                yarl_draw_point(yarl, x, y, color);
-            }
-
-        }
-    }
-
+    assert(!"TODO");
 }
 
 void yarl_draw_line(Yarl yarl, int x0, int y0, int x1, int y1, YarlColor color) {
@@ -220,20 +303,9 @@ void yarl_draw_triangle_outline(
 
 }
 
-void yarl_draw_triangle(Yarl yarl, int x0, int y0, int w, int h, YarlColor color) {
-
-    float m = (float) h / w;
-
-    for (int x=x0; x < x0 + w; ++x) {
-
-        int y_end = yarl->height - x * m;
-
-        for (int y=y_end; y < y0; ++y) {
-            yarl_draw_point(yarl, x, y, color);
-        }
-
-    }
-
+// TODO:
+void yarl_draw_triangle(Yarl yarl, int x0, int y0, int x1, int y1, YarlColor color) {
+    assert(!"TODO");
 }
 
 YarlColor yarl_lerp_color(YarlColor a, YarlColor b, float t) {
