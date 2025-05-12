@@ -16,7 +16,7 @@ int main(void) {
     int h = yarl_get_height(yarl);
     int w = yarl_get_width(yarl);
 
-    float i = 0;
+    float i = 25.;
     bool up = true;
 
     while (!WindowShouldClose()) {
@@ -24,14 +24,13 @@ int main(void) {
 
         yarl_fill(yarl, YARL_GREY);
 
-        float angle = floorf(YARL_LERP(25, 35, i));
+        float step = 5.;
+        if (i < 25.) up = true;
+        if (i > 35.) up = false;
+        if (up) i+=step;
+        else i-=step;
 
-        if (i < -1.) up = true;
-        if (i > 1.) up = false;
-        if (up) i++;
-        else i--;
-
-        yarl_draw_arc(yarl, w/2, h/2, 150, angle, 360. - 2. * angle, YARL_YELLOW);
+        yarl_draw_arc(yarl, w/2, h/2, 150, i, 360. - 2. * i, YARL_YELLOW);
         yarl_render_raylib(yarl, 0, 0, 1);
 
         EndDrawing();
