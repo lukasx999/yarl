@@ -212,23 +212,27 @@ void yarl_draw_line_thick(Yarl yarl, int x0, int y0, int x1, int y1, YarlColor c
 
 }
 
-void yarl_draw_triangle_outline(
-    Yarl yarl,
-    int x0, int y0,
-    int x1, int y1,
-    int x2, int y2,
-    YarlColor color
-) {
-
-    yarl_draw_line(yarl, x0, y0, x1, y1, color);
-    yarl_draw_line(yarl, x0, y0, x2, y2, color);
-    yarl_draw_line(yarl, x1, y1, x2, y2, color);
-
+static inline float triangle_edge_function(int x0, int y0, int x1, int y1, int x2, int y2) {
+    return (x1-x0) * (y2-y0) - (y1-y0) * (x2-x0);
 }
 
-// TODO:
-void yarl_draw_triangle(Yarl yarl, int x0, int y0, int x1, int y1, YarlColor color) {
-    assert(!"TODO");
+void yarl_draw_triangle(Yarl yarl, int x0, int y0, int x1, int y1, int x2, int y2, YarlColor color) {
+
+    int h = yarl_get_height(yarl);
+    int w = yarl_get_width(yarl);
+
+    for (int y=0; y < h; ++y) {
+        for (int x=0; x < w; ++x) {
+
+            float area1 = triangle_edge_function(x0, y0, x1, y1, x, y);
+            float area2 = triangle_edge_function(x1, y1, x2, y2, x, y);
+            float area3 = triangle_edge_function(x2, y2, x0, y0, x, y);
+            if (area1 < 0 && area2 < 0 && area3 < 0)
+                yarl_draw_point(yarl, x, y, color);
+
+        }
+    }
+
 }
 
 YarlColor yarl_lerp_color(YarlColor a, YarlColor b, float t) {

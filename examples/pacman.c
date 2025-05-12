@@ -24,14 +24,16 @@ int main(void) {
 
         yarl_fill(yarl, YARL_GREY);
 
-        float step = 5.;
+        float step = 1.;
         if (i < 25.) up = true;
         if (i > 35.) up = false;
         if (up) i+=step;
         else i-=step;
 
         yarl_draw_arc(yarl, w/2, h/2, 150, i, 360. - 2. * i, YARL_YELLOW);
+        // yarl_draw_circle(yarl, w/2, h/2, i, YARL_BLUE);
         yarl_render_raylib(yarl, 0, 0, 1);
+        DrawFPS(0, 0);
 
         EndDrawing();
     }

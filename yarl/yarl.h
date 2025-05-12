@@ -5,16 +5,21 @@
 // Yarl Color Utilities
 //
 
-#define YARL_BLACK  0x000000ff
-#define YARL_WHITE  0xffffffff
-#define YARL_RED    0xff0000ff
-#define YARL_GREEN  0x00ff00ff
-#define YARL_BLUE   0x0000ffff
-#define YARL_CYAN   0x00ffffff
-#define YARL_YELLOW 0xffff00ff
-#define YARL_PINK   0xff00ffff
-#define YARL_PURPLE 0x800080ff
-#define YARL_GREY   0x808080ff
+#define YARL_DARK_RED           0x8B0000ff
+#define YARL_DARK_GREEN         0x006400ff
+#define YARL_DARK_BLUE          0x00008Bff
+#define YARL_DARK_YELLOW        0xBA8E23ff
+#define YARL_DARK_PURPLE        0x301934ff
+#define YARL_BLACK              0x000000ff
+#define YARL_WHITE              0xffffffff
+#define YARL_RED                0xff0000ff
+#define YARL_GREEN              0x00ff00ff
+#define YARL_BLUE               0x0000ffff
+#define YARL_CYAN               0x00ffffff
+#define YARL_YELLOW             0xffff00ff
+#define YARL_PINK               0xff00ffff
+#define YARL_PURPLE             0x800080ff
+#define YARL_GREY               0x808080ff
 
 #define YARL_COLOR_R(color) \
     (((color) & 0xff000000) >> 3*8)
@@ -74,9 +79,8 @@ void yarl_draw_circle           (Yarl yarl, int cx, int cy, int r, YarlColor col
 void yarl_draw_circle_outline   (Yarl yarl, int cx, int cy, int r, YarlColor color);
 void yarl_draw_ellipse          (Yarl yarl, int x, int y, int rx, int ry, YarlColor color);
 void yarl_draw_line             (Yarl yarl, int x0, int y0, int x1, int y1, YarlColor color);
-void yarl_draw_triangle_outline (Yarl yarl, int x0, int y0, int x1, int y1, int x2, int y2, YarlColor color);
 void yarl_draw_line_thick       (Yarl yarl, int x0, int y0, int x1, int y1, YarlColor color, int thickness);
-void yarl_draw_triangle         (Yarl yarl, int x0, int y0, int w, int h, YarlColor color);
+void yarl_draw_triangle         (Yarl yarl, int x0, int y0, int x1, int y1, int x2, int y2, YarlColor color);
 
 
 
