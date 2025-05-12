@@ -5,6 +5,7 @@ usage:
 	@echo "Please specify the name of the example file (without file extension) as the second argument to make."
 
 %: %.c
+	make -BC ../yarl
 	cc $(CFLAGS) $< -o $@ ../yarl/libyarl.a -I../yarl $(LIBS)
 
 clean:

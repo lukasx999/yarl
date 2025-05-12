@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <math.h>
 
+#include "util.h"
 
 
 struct YarlContext {
@@ -87,17 +88,14 @@ void yarl_draw_rect(Yarl yarl, int x, int y, int w, int h, YarlColor color) {
             yarl_draw_point(yarl, j, i, color);
 }
 
-// angle is in degrees
-void yarl_draw_arc_outline(Yarl yarl, int cx, int cy, int r, int start_angle, int end_angle, YarlColor color) {
+void yarl_draw_arc_outline(Yarl yarl, int cx, int cy, int r, float start_angle, float rot_count, YarlColor color) {
 
-    // normalize angles
-    start_angle = start_angle % 360;
-    end_angle   = end_angle   % 360;
+    start_angle = fmodf(start_angle, 360);
 
-    if (end_angle < start_angle)
-        end_angle += 360;
+    if (start_angle < 0.)
+        start_angle = 360. - fabsf(start_angle);
 
-    for (int a=start_angle; a < end_angle; ++a) {
+    for (float a=start_angle; a < start_angle + rot_count; ++a) {
         int x = cx + r * cos(YARL_DEG_TO_RAD(a));
         int y = cy + r * sin(YARL_DEG_TO_RAD(a));
         yarl_draw_point(yarl, x, y, color);
@@ -105,43 +103,20 @@ void yarl_draw_arc_outline(Yarl yarl, int cx, int cy, int r, int start_angle, in
 
 }
 
-// TODO: test this function
-// `````````````````````````````````````````
-// ````````````````````270°`````````````````
-// `````````````````````|```````````````````
-// `````````225°````````|`````````315°``````
-// `````````````````````|```````````````````
-// `````````````````````|```````````````````
-// ````180°<------------*------------>0°````
-// `````````````````````|```````````````````
-// `````````````````````|```````````````````
-// `````````135°````````|`````````45°```````
-// `````````````````````|```````````````````
-// ````````````````````90°``````````````````
-// ````````````````````````````````````````
-static float rotation_angle_around_center(int x, int y) {
-    float angle = floorf(YARL_RAD_TO_DEG(atanf((float) y / x)));
-    if (y > 0.)
-        angle = 360. - angle;
+void yarl_draw_arc(
+    Yarl yarl,
+    int cx,
+    int cy,
+    int r,
+    float start_angle,
+    float rot_count,
+    YarlColor color
+) {
 
-    if (x < 0.)
-        angle = 180. - angle;
-
-    angle = fabsf(angle);
-    return angle;
-}
-
-void yarl_draw_arc(Yarl yarl, int cx, int cy, int r, float start_angle, float end_angle, YarlColor color) {
-
-    // normalize angles
     start_angle = fmodf(start_angle, 360.);
-    end_angle = fmodf(end_angle, 360.);
 
-    if (end_angle < start_angle)
-        end_angle += 360.;
-
-    printf("start: %f\n", start_angle);
-    printf("end: %f\n", end_angle);
+    if (start_angle < 0.)
+        start_angle = 360. - fabsf(start_angle);
 
     int x0 = YARL_CLAMP(cx - r, 0, yarl->width);
     int y0 = YARL_CLAMP(cy - r, 0, yarl->height);
@@ -153,11 +128,11 @@ void yarl_draw_arc(Yarl yarl, int cx, int cy, int r, float start_angle, float en
 
             // position relative to arc middle
             int mx = x - cx;
-            int my = y - cy;
+            int my = cy - y;
 
             float angle = rotation_angle_around_center(mx, my);
 
-            for (float a=start_angle; a < end_angle; ++a) {
+            for (float a=start_angle; a < start_angle + rot_count; ++a) {
 
                 // coordinates of arc outline
                 int xo = r * cos(YARL_DEG_TO_RAD(a));
@@ -168,6 +143,7 @@ void yarl_draw_arc(Yarl yarl, int cx, int cy, int r, float start_angle, float en
 
                 if (angle == a && len < leno)
                     yarl_draw_point(yarl, x, y, color);
+
             }
 
         }

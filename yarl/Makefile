@@ -1,10 +1,10 @@
 CC=cc
-CFLAGS=-Wall -Wextra -std=c11 -pedantic -ggdb -O0
+CFLAGS=-Wall -Wextra -std=c11 -pedantic -ggdb -O3
 LIBS=-lm
 AR=ar
 ARFLAGS=rcs
-OBJS=yarl.o
-DEPS=yarl.h
+OBJS=yarl.o util.o
+DEPS=yarl.h util.h
 WEBCC=clang
 WEBFLAGS=--target=wasm32-wasi --sysroot=/usr/share/wasi-sysroot/ --no-standard-libraries
 
