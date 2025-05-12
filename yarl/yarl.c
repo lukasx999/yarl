@@ -1,13 +1,12 @@
 #include "yarl.h"
 
 #include <stdlib.h>
-#include <sys/param.h>
-#define __USE_MISC
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
+#include <sys/param.h>
 
 #include "util.h"
 
@@ -221,12 +220,19 @@ void yarl_draw_triangle(Yarl yarl, int x0, int y0, int x1, int y1, int x2, int y
     int h = yarl_get_height(yarl);
     int w = yarl_get_width(yarl);
 
-    for (int y=0; y < h; ++y) {
-        for (int x=0; x < w; ++x) {
+    // bounding box of triangle
+    int xs = YARL_CLAMP(MIN(x0, MIN(x1, x2)), 0, w);
+    int xe = YARL_CLAMP(MAX(x0, MAX(x1, x2)), 0, w);
+    int ys = YARL_CLAMP(MIN(y0, MIN(y1, y2)), 0, h);
+    int ye = YARL_CLAMP(MAX(y0, MAX(y1, y2)), 0, h);
+
+    for (int y=ys; y < ye; ++y) {
+        for (int x=xs; x < xe; ++x) {
 
             float area1 = triangle_edge_function(x0, y0, x1, y1, x, y);
             float area2 = triangle_edge_function(x1, y1, x2, y2, x, y);
             float area3 = triangle_edge_function(x2, y2, x0, y0, x, y);
+
             if (area1 < 0 && area2 < 0 && area3 < 0)
                 yarl_draw_point(yarl, x, y, color);
 
