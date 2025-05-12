@@ -1,12 +1,13 @@
 #include "yarl.h"
 
 #include <stdlib.h>
+#include <sys/param.h>
+#define __USE_MISC
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
-#include <sys/param.h>
 
 
 
@@ -39,7 +40,8 @@ Yarl yarl_init(int width, int height) {
 }
 
 YarlColor yarl_get_pixel(const Yarl yarl, int x, int y) {
-    // TODO: bounds checking
+    assert(x < yarl->width);
+    assert(y < yarl->height);
     return yarl->canvas[y][x];
 }
 
@@ -104,39 +106,42 @@ void yarl_draw_arc_outline(Yarl yarl, int cx, int cy, int r, int start_angle, in
 }
 
 // TODO: test this function
-// ``````````````````````````````````````
-// ``````````````````270°````````````````
-// ```````````````````|``````````````````
-// ```````225°````````|`````````315°`````
-// ```````````````````|``````````````````
-// ```````````````````|``````````````````
-// ``180°<------------*----------->0°````
-// ```````````````````|``````````````````
-// ```````````````````|``````````````````
-// ```````135°````````|`````````45°``````
-// ```````````````````|``````````````````
-// ``````````````````90°`````````````````
-// ``````````````````````````````````````
+// `````````````````````````````````````````
+// ````````````````````270°`````````````````
+// `````````````````````|```````````````````
+// `````````225°````````|`````````315°``````
+// `````````````````````|```````````````````
+// `````````````````````|```````````````````
+// ````180°<------------*------------>0°````
+// `````````````````````|```````````````````
+// `````````````````````|```````````````````
+// `````````135°````````|`````````45°```````
+// `````````````````````|```````````````````
+// ````````````````````90°``````````````````
+// ````````````````````````````````````````
 static float rotation_angle_around_center(int x, int y) {
     float angle = floorf(YARL_RAD_TO_DEG(atanf((float) y / x)));
-    if (y > 0)
-        angle = 360 - angle;
+    if (y > 0.)
+        angle = 360. - angle;
 
-    if (x < 0)
-        angle = 180 - angle;
+    if (x < 0.)
+        angle = 180. - angle;
 
     angle = fabsf(angle);
     return angle;
 }
 
-void yarl_draw_arc(Yarl yarl, int cx, int cy, int r, int start_angle, int end_angle, YarlColor color) {
+void yarl_draw_arc(Yarl yarl, int cx, int cy, int r, float start_angle, float end_angle, YarlColor color) {
 
     // normalize angles
-    start_angle = start_angle % 360;
-    end_angle   = end_angle   % 360;
+    start_angle = fmodf(start_angle, 360.);
+    end_angle = fmodf(end_angle, 360.);
 
     if (end_angle < start_angle)
-        end_angle += 360;
+        end_angle += 360.;
+
+    printf("start: %f\n", start_angle);
+    printf("end: %f\n", end_angle);
 
     int x0 = YARL_CLAMP(cx - r, 0, yarl->width);
     int y0 = YARL_CLAMP(cy - r, 0, yarl->height);
@@ -148,11 +153,11 @@ void yarl_draw_arc(Yarl yarl, int cx, int cy, int r, int start_angle, int end_an
 
             // position relative to arc middle
             int mx = x - cx;
-            int my = cy - y;
+            int my = y - cy;
 
             float angle = rotation_angle_around_center(mx, my);
 
-            for (int a=start_angle; a < end_angle; ++a) {
+            for (float a=start_angle; a < end_angle; ++a) {
 
                 // coordinates of arc outline
                 int xo = r * cos(YARL_DEG_TO_RAD(a));
@@ -169,8 +174,6 @@ void yarl_draw_arc(Yarl yarl, int cx, int cy, int r, int start_angle, int end_an
     }
 
 }
-
-// TODO: use M_PI
 
 void yarl_draw_circle_outline(Yarl yarl, int cx, int cy, int r, YarlColor color) {
     yarl_draw_arc_outline(yarl, cx, cy, r, 0, 360, color);

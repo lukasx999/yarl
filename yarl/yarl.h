@@ -69,7 +69,7 @@ void yarl_draw_rect_outline     (Yarl yarl, int x, int y, int w, int h, YarlColo
 /// angle is in degrees
 void yarl_draw_arc_outline      (Yarl yarl, int cx, int cy, int r, int start_angle, int end_angle, YarlColor color);
 /// angle is in degrees
-void yarl_draw_arc              (Yarl yarl, int cx, int cy, int r, int start_angle, int end_angle, YarlColor color);
+void yarl_draw_arc              (Yarl yarl, int cx, int cy, int r, float start_angle, float end_angle, YarlColor color);
 void yarl_draw_circle           (Yarl yarl, int cx, int cy, int r, YarlColor color);
 void yarl_draw_circle_outline   (Yarl yarl, int cx, int cy, int r, YarlColor color);
 void yarl_draw_ellipse          (Yarl yarl, int x, int y, int rx, int ry, YarlColor color);
@@ -92,10 +92,10 @@ void yarl_draw_triangle         (Yarl yarl, int x0, int y0, int w, int h, YarlCo
     ((a) + (t) * ((b) - (a)))
 
 #define YARL_RAD_TO_DEG(rads) \
-    ((rads) * (180. / 3.14))
+    ((rads) * (180. / M_PI))
 
 #define YARL_DEG_TO_RAD(rads) \
-    ((rads) * (3.14 / 180.))
+    ((rads) * (M_PI / 180.))
 
 YarlColor yarl_lerp_color(YarlColor a, YarlColor b, float t);
 
