@@ -53,10 +53,10 @@ int yarl_get_height(const Yarl yarl) {
     return yarl->height - 1;
 }
 
-void yarl_destroy(Yarl yc) {
-    for (int y=0; y < yc->height; ++y)
-        free(yc->canvas[y]);
-    free(yc->canvas);
+void yarl_destroy(Yarl yarl) {
+    for (int y=0; y < yarl->height; ++y)
+        free(yarl->canvas[y]);
+    free(yarl->canvas);
 }
 
 void yarl_fill(Yarl yarl, YarlColor color) {
