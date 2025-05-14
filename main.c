@@ -145,22 +145,17 @@ int main(void) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    YarlColor c[yarl_height+1][yarl_width+1];
-    for (int y=0; y <= yarl_height; ++y) {
-        memcpy(c[y], yarl_get_canvas(yarl)[y], yarl_height+1);
-    }
-
-    glTexImage2D(
-        GL_TEXTURE_2D,
-        0,
-        GL_RGBA,
-        yarl_width+1,
-        yarl_height+1,
-        0,
-        GL_RGBA,
-        GL_UNSIGNED_BYTE,
-        c
-    );
+    // glTexImage2D(
+    //     GL_TEXTURE_2D,
+    //     0,
+    //     GL_RGBA,
+    //     yarl_width+1,
+    //     yarl_height+1,
+    //     0,
+    //     GL_RGBA,
+    //     GL_UNSIGNED_BYTE,
+    //     c
+    // );
 
     glGenerateMipmap(tex);
 
