@@ -46,8 +46,6 @@ typedef unsigned int YarlColor;
 
 typedef struct YarlContext* Yarl;
 
-
-
 //
 // Yarl State Management
 //
@@ -60,6 +58,7 @@ int yarl_get_width(const Yarl yarl);
 /// Returns the last index, instead of the total width, to stop users from making off-by-one errors
 int yarl_get_height(const Yarl yarl);
 void yarl_destroy(Yarl yarl);
+YarlColor **yarl_get_canvas(const Yarl yarl);
 
 
 

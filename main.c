@@ -28,50 +28,60 @@ void callback_error(int error_code, const char* description) {
 
 static const char *vert_src =
     "#version 330\n"
-    "in vec2 pos;\n"
-    "uniform vec2 scale;\n"
+
+    "in vec2 a_pos;\n"
+    "in vec2 a_uv;\n"
+    "out vec2 uv;\n"
+
     "void main() {\n"
-    // "float s = 1.0;\n"
-    // "vec2 p = vec2(pos.x + s, pos.y - s);\n"
-    // "vec2 origin = vec2(-1.0, 1.0);\n"
-    "gl_Position = vec4(pos*scale, 0., 1.);\n"
+        "uv = a_uv;\n"
+        "gl_Position = vec4(a_pos*0.5, 0.0, 1.0);\n"
     "}\n";
 
 static const char *frag_src =
     "#version 330\n"
+
     "out vec4 fragment;\n"
     "uniform vec4 color;\n"
+    "in vec2 uv;\n"
+    "uniform sampler2D tex;\n"
+
     "void main() {\n"
-    "fragment = color;\n"
+        "fragment = texture(tex, uv);\n"
     "}\n";
 
 typedef struct {
     float x, y;
 } V2;
 
+typedef struct {
+    V2 pos;
+    V2 uv;
+} Vertex;
+
 int main(void) {
 
-    // int size = 100;
-    // Yarl yarl = yarl_init(size, size);
-    // int yarl_height = yarl_get_height(yarl);
-    // int yarl_width = yarl_get_width(yarl);
-    // yarl_fill(yarl, YARL_GREY);
-    // yarl_draw_rect(yarl, 1, 1, yarl_width-1, yarl_height-1, YARL_RED);
-    // yarl_draw_rect(
-    //     yarl,
-    //     yarl_width/4,
-    //     yarl_height/4,
-    //     yarl_width - yarl_width/4,
-    //     yarl_height - yarl_height/4,
-    //     YARL_DARK_RED
-    // );
-    // yarl_draw_point(yarl, (yarl_width+1)/2, (yarl_height+1)/2, YARL_BLUE);
+    int size = 1000;
+    Yarl yarl = yarl_init(size, size);
+    int yarl_height = yarl_get_height(yarl);
+    int yarl_width = yarl_get_width(yarl);
+    yarl_fill(yarl, YARL_GREY);
+    yarl_draw_rect(yarl, 1, 1, yarl_width-1, yarl_height-1, YARL_RED);
+    yarl_draw_rect(
+        yarl,
+        yarl_width/4,
+        yarl_height/4,
+        yarl_width - yarl_width/4,
+        yarl_height - yarl_height/4,
+        YARL_DARK_RED
+    );
+    yarl_draw_point(yarl, (yarl_width+1)/2, (yarl_height+1)/2, YARL_BLUE);
 
-    V2 vertices[] = {
-        {  1.0f,  1.0f }, // top right
-        {  1.0f, -1.0f }, // bottom right
-        { -1.0f, -1.0f }, // bottom left
-        { -1.0f,  1.0f }, // top left 
+    Vertex vertices[] = {
+        { { 1.0f,  1.0f }, { 1.0, 1.0 } }, // top right
+        { { 1.0f, -1.0f }, { 1.0, 0.0 } }, // bottom right
+        { {-1.0f, -1.0f }, { 0.0, 0.0 } }, // bottom left
+        { {-1.0f,  1.0f }, { 0.0, 1.0 } }, // top left 
     };
 
     GLuint indices[] = {
@@ -118,67 +128,54 @@ int main(void) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    GLuint pos = glGetAttribLocation(prog, "pos");
-    glVertexAttribPointer(pos, 2, GL_FLOAT, false, sizeof(V2), 0);
+    GLuint pos = glGetAttribLocation(prog, "a_pos");
+    glVertexAttribPointer(pos, 2, GL_FLOAT, false, sizeof(Vertex), (void*) offsetof(Vertex, pos));
     glEnableVertexAttribArray(pos);
 
-    int w, h;
-    glfwGetWindowSize(window, &w, &h);
-    GLuint u_scale = glGetUniformLocation(prog, "scale");
-    float scale = 0.1;
-    glUniform2f(u_scale, scale, scale);
+    GLuint uv = glGetAttribLocation(prog, "a_uv");
+    glVertexAttribPointer(uv, 2, GL_FLOAT, false, sizeof(Vertex), (void*) offsetof(Vertex, uv));
+    glEnableVertexAttribArray(uv);
 
-    GLuint u_offset = glGetUniformLocation(prog, "offset");
-    GLuint u_color = glGetUniformLocation(prog, "color");
+    GLuint tex;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    YarlColor c[yarl_height+1][yarl_width+1];
+    for (int y=0; y <= yarl_height; ++y) {
+        memcpy(c[y], yarl_get_canvas(yarl)[y], yarl_height+1);
+    }
+
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_RGBA,
+        yarl_width+1,
+        yarl_height+1,
+        0,
+        GL_RGBA,
+        GL_UNSIGNED_BYTE,
+        c
+    );
+
+    glGenerateMipmap(tex);
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
     while (!glfwWindowShouldClose(window)) {
         glClear(GL_COLOR_BUFFER_BIT);
 
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, tex);
+
         glUseProgram(prog);
         glBindVertexArray(vao);
 
-
-
-        int n = 5;
-        for (int i=0; i < n; ++i) {
-
-            glUniform4f(u_color, 1, 0, 0, 1.);
-
-            float x = (float) i / n; // 0..1
-            assert(x >= 0 && x <= 1);
-            V2 offset = { 0.0, 0.0 };
-
-            glUniform2f(u_offset, offset.x, offset.y);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        }
-
-
-
-
-
-
-
-        // int height = yarl_get_height(yarl);
-        // int width = yarl_get_width(yarl);
-        // for (int y=0; y <= height; ++y) {
-        //     for (int x=0; x <= width; ++x) {
-        //         YarlColor color = yarl_get_pixel(yarl, x, y);
-        //
-        //         float r = YARL_COLOR_R(color) / 255.;
-        //         float g = YARL_COLOR_G(color) / 255.;
-        //         float b = YARL_COLOR_B(color) / 255.;
-        //         glUniform4f(u_color, r, g, b, 1.);
-        //         float xn = ((float) x / width)  * 2 - 1; // -1..1
-        //         float yn = ((float) y / height) * 2 - 1; // -1..1
-        //         glUniform2f(u_offset, xn/2, yn/2);
-        //
-        //         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        //     }
-        // }
-
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -187,6 +184,7 @@ int main(void) {
 
     glfwDestroyWindow(window);
     glfwTerminate();
+    yarl_destroy(yarl);
 
     return 0;
 }

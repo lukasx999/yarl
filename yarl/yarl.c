@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
 #include <sys/param.h>
@@ -43,6 +42,10 @@ YarlColor yarl_get_pixel(const Yarl yarl, int x, int y) {
     assert(x < yarl->width);
     assert(y < yarl->height);
     return yarl->canvas[y][x];
+}
+
+YarlColor **yarl_get_canvas(const Yarl yarl) {
+    return yarl->canvas;
 }
 
 int yarl_get_width(const Yarl yarl) {
