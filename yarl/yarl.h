@@ -21,35 +21,18 @@
 #define YARL_PURPLE             0x800080ff
 #define YARL_GREY               0x808080ff
 
-#define YARL_COLOR_R(color) \
-    (((color) & 0xff000000) >> 3*8)
-
-#define YARL_COLOR_G(color) \
-    (((color) & 0x00ff0000) >> 2*8)
-
-#define YARL_COLOR_B(color) \
-    (((color) & 0x0000ff00) >> 1*8)
-
-#define YARL_COLOR_A(color) \
-    ((color) & 0x000000ff)
-
-// TODO: consider a struct YarlColor
 
 
 //
 // Yarl Types
 //
 
-/// 4 bytes: 1. red, 2. green, 3. blue, 4. alpha
-/// alpha may be discarded on platforms that dont support it
-typedef unsigned int YarlColor;
-
-// typedef struct {
-//     unsigned char r;
-//     unsigned char g;
-//     unsigned char b;
-//     unsigned char a;
-// } YarlColor;
+typedef struct {
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned char a;
+} YarlColor;
 
 typedef struct YarlContext* Yarl;
 

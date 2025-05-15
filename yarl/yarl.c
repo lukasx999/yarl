@@ -10,10 +10,14 @@
 #include "util.h"
 
 
+
 struct YarlContext {
     int width, height;
     YarlColor **canvas;
 };
+
+Yarl yarl_with_buffer(void *buffer, int width, int height) {
+}
 
 // TODO: let the user pass in their own buffer
 Yarl yarl_init(int width, int height) {
@@ -246,18 +250,10 @@ void yarl_draw_triangle(Yarl yarl, int x0, int y0, int x1, int y1, int x2, int y
 }
 
 YarlColor yarl_lerp_color(YarlColor a, YarlColor b, float t) {
-
-    uint8_t rr = YARL_LERP(YARL_COLOR_R(a), YARL_COLOR_R(b), t);
-    uint8_t rg = YARL_LERP(YARL_COLOR_G(a), YARL_COLOR_G(b), t);
-    uint8_t rb = YARL_LERP(YARL_COLOR_B(a), YARL_COLOR_B(b), t);
-    uint8_t ra = YARL_LERP(YARL_COLOR_A(a), YARL_COLOR_A(b), t);
-
-    YarlColor out =
-        (rr << 3*8) |
-        (rg << 2*8) |
-        (rb << 1*8) |
-        ra;
-
-    return out;
-
+    return (YarlColor) {
+        YARL_LERP(a.r, b.r, t),
+        YARL_LERP(a.g, b.g, t),
+        YARL_LERP(a.b, b.b, t),
+        YARL_LERP(a.a, b.a, t),
+    };
 }
