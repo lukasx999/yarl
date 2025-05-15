@@ -5,7 +5,6 @@
 #include <raylib.h>
 
 #include <yarl.h>
-#include <backend/raylib.h>
 
 #include "examples.c"
 
@@ -33,7 +32,13 @@ int main(void) {
             time = GetTime() + 1;
         }
 
-        yarl_render_raylib(yarl, 0, 0, 1);
+        for (int y=0; y < yarl_get_height(yarl); ++y) {
+            for (int x=0; x < yarl_get_width(yarl); ++x) {
+                YarlColor color = yarl_get_pixel(yarl, x, y);
+                Color rlcolor = { color.r, color.g, color.b, color.a };
+                DrawRectangle(x, y, 1, 1, rlcolor);
+            }
+        }
 
 
         EndDrawing();

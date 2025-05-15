@@ -5,6 +5,7 @@
 #include <yarl.h>
 
 
+
 void triangles(Yarl yarl) {
 
     int w = yarl_get_width(yarl);
@@ -39,7 +40,7 @@ void pacman(Yarl yarl) {
         yarl_get_height(yarl) / 2,
         150,
         35,
-        -35,
+        305,
         YARL_YELLOW
     );
 

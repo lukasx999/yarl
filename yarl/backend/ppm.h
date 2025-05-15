@@ -3,6 +3,7 @@
 
 #include <yarl.h>
 
+// returns -1 on error
 static inline int yarl_render_ppm(const Yarl yarl, const char *filename) {
     FILE *f = fopen(filename, "wb");
     if (f == NULL)
