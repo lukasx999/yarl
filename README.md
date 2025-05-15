@@ -1,5 +1,22 @@
 # Yarl
 
+Platform agnostic 2D rasteriztation library.
+
+## Implemented Primitives
+
+- Rectangle
+- Triangle
+- Arc
+- Circle
+- Line
+
+## Implemented Backens
+- OpenGL
+- PPM
+- PNG
+- Xlib
+- Raylib
+
 ## Build Instructions
 
 ```console
