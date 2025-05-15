@@ -77,6 +77,9 @@ void yarl_draw_line_thick       (Yarl yarl, int x0, int y0, int x1, int y1, Yarl
 void yarl_draw_triangle         (Yarl yarl, int x0, int y0, int x1, int y1, int x2, int y2, YarlColor color);
 
 
+// returns -1 on error
+int yarl_render_ppm(const Yarl yarl, const char *filename);
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Yarl Utilities

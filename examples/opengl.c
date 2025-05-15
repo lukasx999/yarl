@@ -2,19 +2,27 @@
 #include <stdbool.h>
 #include <assert.h>
 
+#include "examples.c"
+
 #define GLAD_GL_IMPLEMENTATION
-#include "glad/gl.h"
+#include "lib/glad/gl.h"
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
 #include <yarl.h>
-#include <backend/ppm.h>
 
 #define ARRAY_LEN(xs) (sizeof((xs)) / sizeof(*(xs)))
 
+#define CANVAS_HEIGHT 500
+#define CANVAS_WIDTH 500
 
+void handle_inputs(GLFWwindow *window) {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS
+        || glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, 1);
+}
 
-void callback_resize(GLFWwindow* window, int width, int height) {
+void resize_callback(GLFWwindow* window, int width, int height) {
     (void) window;
     glViewport(0, 0, width, height);
 }
@@ -45,28 +53,18 @@ static const char *frag_src =
 
 typedef struct {
     float x, y;
-} V2;
+} Vec2;
 
 typedef struct {
-    V2 pos;
-    V2 uv;
+    Vec2 pos;
+    Vec2 uv;
 } Vertex;
-
-#define YARL_HEIGHT 500
-#define YARL_WIDTH 500
 
 int main(void) {
 
-    Yarl yarl = yarl_init(YARL_WIDTH, YARL_HEIGHT);
+    Yarl yarl = yarl_init(CANVAS_WIDTH, CANVAS_HEIGHT);
     assert(yarl != NULL);
-    int yarl_height = yarl_get_height(yarl);
-    int yarl_width = yarl_get_width(yarl);
-    yarl_fill(yarl, YARL_GREY);
-    yarl_draw_rect(yarl, 100, 100, 300, 300, YARL_BLUE);
-    yarl_draw_triangle(yarl, yarl_width/2, 0, 0, yarl_height-1, yarl_width-1, yarl_height-1, YARL_RED);
-    // yarl_draw_rect(yarl, 1, 1, yarl_width-1, yarl_height-1, YARL_RED);
-    // yarl_draw_rect(yarl, yarl_width/4, yarl_height/4, yarl_width - yarl_width/4, yarl_height - yarl_height/4, YARL_DARK_RED);
-    // yarl_draw_point(yarl, (yarl_width+1)/2, (yarl_height+1)/2, YARL_BLUE);
+    triangles(yarl);
 
     Vertex vertices[] = {
         { { 1.0f,  1.0f }, { 1.0, 1.0 } }, // top right
@@ -80,10 +78,11 @@ int main(void) {
         1, 2, 3
     };
 
-    glfwInit();
+    assert(glfwInit());
     GLFWwindow *window = glfwCreateWindow(1600, 900, "yarl", NULL, NULL);
+    assert(window != NULL);
 
-    glfwSetFramebufferSizeCallback(window, callback_resize);
+    glfwSetFramebufferSizeCallback(window, resize_callback);
     glfwMakeContextCurrent(window);
     gladLoadGL(glfwGetProcAddress);
     glfwSwapInterval(1);
@@ -117,17 +116,17 @@ int main(void) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    GLuint pos = glGetAttribLocation(prog, "a_pos");
-    glVertexAttribPointer(pos, 2, GL_FLOAT, false, sizeof(Vertex), (void*) offsetof(Vertex, pos));
-    glEnableVertexAttribArray(pos);
+    GLuint loc_pos = glGetAttribLocation(prog, "a_pos");
+    glVertexAttribPointer(loc_pos, 2, GL_FLOAT, false, sizeof(Vertex), (void*) offsetof(Vertex, pos));
+    glEnableVertexAttribArray(loc_pos);
 
-    GLuint uv = glGetAttribLocation(prog, "a_uv");
-    glVertexAttribPointer(uv, 2, GL_FLOAT, false, sizeof(Vertex), (void*) offsetof(Vertex, uv));
-    glEnableVertexAttribArray(uv);
+    GLuint loc_uv = glGetAttribLocation(prog, "a_uv");
+    glVertexAttribPointer(loc_uv, 2, GL_FLOAT, false, sizeof(Vertex), (void*) offsetof(Vertex, uv));
+    glEnableVertexAttribArray(loc_uv);
 
-    GLuint tex;
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
+    GLuint tex_canvas;
+    glGenTextures(1, &tex_canvas);
+    glBindTexture(GL_TEXTURE_2D, tex_canvas);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -135,17 +134,16 @@ int main(void) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // texture data has to be contiguous
-    YarlColor data[500][500] = { 0 };
-    for (int y=0; y < 500; ++y) {
+    YarlColor data[CANVAS_HEIGHT][CANVAS_WIDTH] = { 0 };
+    for (int y=0; y < CANVAS_HEIGHT; ++y) {
         YarlColor **color = yarl_get_canvas(yarl);
         // texture will be flipped along y-axis without this
-        memcpy(data[y], color[YARL_HEIGHT-1-y], sizeof(YarlColor)*500);
+        memcpy(data[y], color[CANVAS_HEIGHT-1-y], sizeof(YarlColor)*CANVAS_WIDTH);
         //                    ^^^^^^^^^^^^^
     }
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, YARL_WIDTH, YARL_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-    glGenerateMipmap(tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, CANVAS_WIDTH, CANVAS_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(tex_canvas);
 
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 
@@ -153,18 +151,22 @@ int main(void) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, tex);
+        glBindTexture(GL_TEXTURE_2D, tex_canvas);
 
         glUseProgram(prog);
         glBindVertexArray(vao);
-
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
-
+        handle_inputs(window);
     }
 
+    glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &vao);
+    glDeleteBuffers(1, &ebo);
+    glDeleteProgram(prog);
+    glDeleteTextures(1, &tex_canvas);
     glfwDestroyWindow(window);
     glfwTerminate();
     yarl_destroy(yarl);

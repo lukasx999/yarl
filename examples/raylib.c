@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
+#include <assert.h>
 #include <stdlib.h>
 
 #include <raylib.h>
@@ -11,6 +12,7 @@
 int main(void) {
 
     Yarl yarl = yarl_init(500, 500);
+    assert(yarl != NULL);
 
     SetTraceLogLevel(LOG_ERROR);
     InitWindow(500, 500, "yarl");

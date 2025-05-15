@@ -1,10 +1,10 @@
 #include <assert.h>
 #include <fcntl.h>
+#include <stdio.h>
 #include <linux/limits.h>
 #include <sys/stat.h>
 
 #include <yarl.h>
-#include <backend/ppm.h>
 
 #include "examples.c"
 
