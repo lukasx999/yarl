@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
@@ -16,10 +17,20 @@ struct YarlContext {
     YarlColor **canvas;
 };
 
-Yarl yarl_with_buffer(void *buffer, int width, int height) {
+// TODO: make this a one dimensional array
+Yarl yarl_with_buffer(YarlColor **canvas, int width, int height) {
+
+    Yarl yarl = malloc(sizeof(struct YarlContext));
+    if (yarl == NULL)
+        return NULL;
+
+    yarl->height = height;
+    yarl->width  = width;
+    yarl->canvas = canvas;
+
+    return yarl;
 }
 
-// TODO: let the user pass in their own buffer
 Yarl yarl_init(int width, int height) {
 
     Yarl yarl = malloc(sizeof(struct YarlContext));
@@ -89,10 +100,10 @@ void yarl_draw_rect_outline(Yarl yarl, int x, int y, int w, int h, YarlColor col
 
 }
 
-void yarl_draw_rect(Yarl yarl, int x, int y, int w, int h, YarlColor color) {
-    for (int i=y; i < y+h; ++i)
-        for (int j=x; j < x+w; ++j)
-            yarl_draw_point(yarl, j, i, color);
+void yarl_draw_rect(Yarl yarl, int x0, int y0, int w, int h, YarlColor color) {
+    for (int y=y0; y < y0+h; ++y)
+        for (int x=x0; x < x0+w; ++x)
+            yarl_draw_point(yarl, x, y, color);
 }
 
 void yarl_draw_arc_outline(Yarl yarl, int cx, int cy, int r, float start_angle, float rot_count, YarlColor color) {

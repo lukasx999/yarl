@@ -2,7 +2,7 @@
 
 #include <X11/Xlib.h>
 
-static inline void yarl_render_xlib(Yarl yarl, Display *dpy, Window win, GC gc) {
+static inline void yarl_render_xlib(const Yarl yarl, Display *dpy, Window win, GC gc) {
     int w = yarl_get_width(yarl);
     int h = yarl_get_height(yarl);
 

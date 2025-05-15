@@ -3,7 +3,7 @@
 
 #include <yarl.h>
 
-static inline int yarl_render_ppm(Yarl yarl, const char *filename) {
+static inline int yarl_render_ppm(const Yarl yarl, const char *filename) {
     FILE *f = fopen(filename, "wb");
     if (f == NULL)
         return -1;
@@ -15,15 +15,7 @@ static inline int yarl_render_ppm(Yarl yarl, const char *filename) {
     for (int y=0; y < h; ++y) {
         for (int x=0; x < w; ++x) {
             YarlColor color = yarl_get_pixel(yarl, x, y);
-
-            // reverse byte order
-            YarlColor c =
-                ((color & 0x000000ff) >> 3*8) |
-                ((color & 0x0000ff00) << 1*8) |
-                ((color & 0x00ff0000) >> 1*8) |
-                color >> 3*8;
-
-            fwrite(&c, 3, 1, f);
+            fwrite(&color, 3, 1, f);
         }
     }
 

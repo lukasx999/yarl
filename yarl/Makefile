@@ -1,5 +1,5 @@
 CC=cc
-CFLAGS=-Wall -Wextra -std=c11 -pedantic -ggdb -O3
+CFLAGS=-Wall -Wextra -std=c11 -pedantic -ggdb -O0
 LIBS=-lm
 AR=ar
 ARFLAGS=rcs

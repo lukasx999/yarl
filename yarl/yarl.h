@@ -5,28 +5,6 @@
 // Yarl Color Utilities
 //
 
-#define YARL_DARK_RED           0x8B0000ff
-#define YARL_DARK_GREEN         0x006400ff
-#define YARL_DARK_BLUE          0x00008Bff
-#define YARL_DARK_YELLOW        0xBA8E23ff
-#define YARL_DARK_PURPLE        0x301934ff
-#define YARL_BLACK              0x000000ff
-#define YARL_WHITE              0xffffffff
-#define YARL_RED                0xff0000ff
-#define YARL_GREEN              0x00ff00ff
-#define YARL_BLUE               0x0000ffff
-#define YARL_CYAN               0x00ffffff
-#define YARL_YELLOW             0xffff00ff
-#define YARL_PINK               0xff00ffff
-#define YARL_PURPLE             0x800080ff
-#define YARL_GREY               0x808080ff
-
-
-
-//
-// Yarl Types
-//
-
 typedef struct {
     unsigned char r;
     unsigned char g;
@@ -34,12 +12,39 @@ typedef struct {
     unsigned char a;
 } YarlColor;
 
+#define YARL_COLOR(r, g, b, a) ((YarlColor) { (r), (g), (b), (a) })
+
+#define YARL_WHITE              YARL_COLOR(0xff, 0xff, 0xff, 0xff)
+#define YARL_RED                YARL_COLOR(0xff, 0x00, 0x00, 0xff)
+#define YARL_DARK_RED           YARL_COLOR(0x8B, 0x00, 0x00, 0xff)
+#define YARL_DARK_GREEN         YARL_COLOR(0x00, 0x64, 0x00, 0xff)
+#define YARL_DARK_BLUE          YARL_COLOR(0x00, 0x00, 0x8B, 0xff)
+#define YARL_DARK_YELLOW        YARL_COLOR(0xBA, 0x8E, 0x23, 0xff)
+#define YARL_DARK_PURPLE        YARL_COLOR(0x30, 0x19, 0x34, 0xff)
+#define YARL_BLACK              YARL_COLOR(0x00, 0x00, 0x00, 0xff)
+#define YARL_GREEN              YARL_COLOR(0x00, 0xff, 0x00, 0xff)
+#define YARL_BLUE               YARL_COLOR(0x00, 0x00, 0xff, 0xff)
+#define YARL_CYAN               YARL_COLOR(0x00, 0xff, 0xff, 0xff)
+#define YARL_YELLOW             YARL_COLOR(0xff, 0xff, 0x00, 0xff)
+#define YARL_PINK               YARL_COLOR(0xff, 0x00, 0xff, 0xff)
+#define YARL_PURPLE             YARL_COLOR(0x80, 0x00, 0x80, 0xff)
+#define YARL_GREY               YARL_COLOR(0x80, 0x80, 0x80, 0xff)
+
+
+
+//
+// Yarl Types
+//
+
+
 typedef struct YarlContext* Yarl;
 
 //
 // Yarl State Management
 //
 
+/// Returns `NULL` on failure
+Yarl yarl_with_buffer(YarlColor **canvas, int width, int height);
 /// Returns `NULL` on failure
 Yarl yarl_init(int width, int height);
 YarlColor yarl_get_pixel(const Yarl yarl, int x, int y);
