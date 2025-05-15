@@ -44,6 +44,13 @@
 /// alpha may be discarded on platforms that dont support it
 typedef unsigned int YarlColor;
 
+// typedef struct {
+//     unsigned char r;
+//     unsigned char g;
+//     unsigned char b;
+//     unsigned char a;
+// } YarlColor;
+
 typedef struct YarlContext* Yarl;
 
 //

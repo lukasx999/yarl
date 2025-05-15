@@ -15,6 +15,7 @@ struct YarlContext {
     YarlColor **canvas;
 };
 
+// TODO: let the user pass in their own buffer
 Yarl yarl_init(int width, int height) {
 
     Yarl yarl = malloc(sizeof(struct YarlContext));
