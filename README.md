@@ -1,6 +1,6 @@
 # Yarl
 
-Platform agnostic 2D rasteriztation library.
+Platform agnostic 2D rasterization library.
 
 ## Implemented Primitives
 
@@ -10,6 +10,10 @@ Platform agnostic 2D rasteriztation library.
 - Circle
 - Line
 
+## Primitives - TODO
+- Ellipse
+- Text
+
 ## Implemented Backends
 - OpenGL
 - Wayland
@@ -17,6 +21,13 @@ Platform agnostic 2D rasteriztation library.
 - PNG
 - PPM
 - Raylib
+
+## Backends - TODO
+- Vulkan
+- Cairo
+- Skia
+- SDL
+- PDF
 
 ## Build Instructions
 
