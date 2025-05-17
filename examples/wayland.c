@@ -102,6 +102,7 @@ struct wl_buffer *draw(State *state)
     assert(pool_data != MAP_FAILED);
 
     struct wl_shm_pool *pool = wl_shm_create_pool(state->shm, fd, size);
+    // TODO: fix color format
     struct wl_buffer *buffer = wl_shm_pool_create_buffer(pool, 0, width, height, stride, WL_SHM_FORMAT_XRGB8888);
     wl_shm_pool_destroy(pool);
     close(fd);
