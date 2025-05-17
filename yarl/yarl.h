@@ -6,7 +6,6 @@
 //
 
 // Generic, format agnostic color type
-#include <stddef.h>
 typedef struct {
     unsigned char r; // red
     unsigned char g; // green
