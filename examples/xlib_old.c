@@ -19,16 +19,9 @@ int main(void) {
     assert(dpy != NULL);
 
     Window root = XDefaultRootWindow(dpy);
-    int scr = XDefaultScreen(dpy);
     GC gc = XCreateGC(dpy, root, 0, NULL);
     Window win = XCreateSimpleWindow(dpy, root, 0, 0, 500, 500, 0, 0, 0);
     XSelectInput(dpy, win, KeyPressMask | ExposureMask);
-    Visual *vis = XDefaultVisual(dpy, scr);
-
-    int w = yarl_get_width(yarl);
-    int h = yarl_get_height(yarl);
-    XImage *img = XCreateImage(dpy, vis, 0, XYBitmap, 0, (char*) yarl_get_buffer(yarl), w, h, 8, w * 4);
-    assert(img != NULL);
 
     XMapRaised(dpy, win);
 
@@ -36,8 +29,17 @@ int main(void) {
     bool quit = false;
     while (!quit) {
 
-        // TODO:
-        XPutImage(dpy, win, gc, img, 0, 0, 0, 0, w, h);
+        int w = yarl_get_width(yarl);
+        int h = yarl_get_height(yarl);
+
+        for (int y=0; y < h; ++y) {
+            for (int x=0; x < w; ++x) {
+                YarlColor color = yarl_get_pixel(yarl, x, y);
+                XSetForeground(dpy, gc, *(uint32_t*) &color);
+                XFillRectangle(dpy, win, gc, x, y, 1, 1);
+
+            }
+        }
 
         XNextEvent(dpy, &ev);
         XClearWindow(dpy, win);

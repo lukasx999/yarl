@@ -5,12 +5,23 @@
 // Yarl Color Utilities
 //
 
+// Generic, format agnostic color type
+#include <stddef.h>
 typedef struct {
-    unsigned char b;
-    unsigned char g;
-    unsigned char r;
-    unsigned char a;
+    unsigned char r; // red
+    unsigned char g; // green
+    unsigned char b; // blue
+    unsigned char a; // alpha (may be neglected if not present withing to current format)
 } YarlColor;
+
+typedef enum {
+    YARL_COLOR_FORMAT_ARGB,
+    YARL_COLOR_FORMAT_ABGR,
+    YARL_COLOR_FORMAT_RGBA,
+    YARL_COLOR_FORMAT_BGRA,
+    YARL_COLOR_FORMAT_RGB,
+    YARL_COLOR_FORMAT_BGR,
+} YarlColorFormat;
 
 #define YARL_COLOR(rr, gg, bb, aa) ((YarlColor) { .r = (rr), .g = (gg), .b = (bb), .a = (aa) })
 
@@ -43,16 +54,18 @@ typedef struct Yarl Yarl;
 // Yarl State Management
 //
 
-// returns NULL on failure
-Yarl        *yarl_init_buffer (YarlColor *canvas, int width, int height);
-// returns NULL on failure
-Yarl        *yarl_init        (int width, int height);
-YarlColor    yarl_get_pixel   (const Yarl *yarl, int x, int y);
-YarlColor   *yarl_get_canvas  (const Yarl *yarl);
-int          yarl_get_width   (const Yarl *yarl);
-int          yarl_get_height  (const Yarl *yarl);
+// Returns NULL on failure
+Yarl          *yarl_init_buffer(unsigned char *canvas, int width, int height, YarlColorFormat format);
+// Returns NULL on failure
+// Allocates a new (zeroed) buffer using malloc()
+Yarl          *yarl_init(int width, int height, YarlColorFormat format);
+YarlColor      yarl_get_pixel   (const Yarl *yarl, int x, int y);
+unsigned char *yarl_get_buffer(const Yarl *yarl);
+int            yarl_get_width   (const Yarl *yarl);
+int            yarl_get_height  (const Yarl *yarl);
 // should only be called if automatic initialization was chosen using yarl_init()
-void         yarl_destroy     (Yarl *yarl);
+void           yarl_destroy     (Yarl *yarl);
+int            yarl_get_format_stride(YarlColorFormat format);
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -60,7 +73,7 @@ void         yarl_destroy     (Yarl *yarl);
 ///////////////////////////////////////////////////////////////////////////////
 
 void yarl_fill                  (Yarl *yarl, YarlColor color);
-void yarl_draw_point            (Yarl *yarl, int x, int y, YarlColor color);
+void yarl_draw_pixel            (Yarl *yarl, int x, int y, YarlColor color);
 void yarl_draw_rect             (Yarl *yarl, int x, int y, int w, int h, YarlColor color);
 void yarl_draw_rect_outline     (Yarl *yarl, int x, int y, int w, int h, YarlColor color);
 /// angle and rot_count are in degrees
@@ -74,9 +87,6 @@ void yarl_draw_line             (Yarl *yarl, int x0, int y0, int x1, int y1, Yar
 void yarl_draw_line_thick       (Yarl *yarl, int x0, int y0, int x1, int y1, YarlColor color, int thickness);
 void yarl_draw_triangle         (Yarl *yarl, int x0, int y0, int x1, int y1, int x2, int y2, YarlColor color);
 
-
-// returns -1 on error
-int yarl_render_ppm(const Yarl *yarl, const char *filename);
 
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -107,8 +107,7 @@ struct wl_buffer *draw(State *state)
     close(fd);
 
     // draw
-    YarlColor *canvas = yarl_get_canvas(state->yarl);
-    memcpy(pool_data, canvas, size);
+    memcpy(pool_data, yarl_get_buffer(state->yarl), size);
     munmap(pool_data, size);
 
     static struct wl_buffer_listener wl_buffer_listener = {
@@ -133,7 +132,7 @@ static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, u
 int main(void)
 {
 
-    Yarl *yarl = yarl_init(500, 500);
+    Yarl *yarl = yarl_init(500, 500, YARL_COLOR_FORMAT_BGRA);
     triangles(yarl);
     State state;
 

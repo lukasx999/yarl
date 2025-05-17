@@ -4,9 +4,11 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 #include <stdbool.h>
 #include <math.h>
 #include <sys/param.h>
+#include "formats.h"
 
 #include "util.h"
 
@@ -14,10 +16,13 @@
 
 struct Yarl {
     int width, height;
-    YarlColor *canvas;
+    // binary canvas - could represent any color format
+    // use the associated functions from `formats.h` for extracting color values
+    unsigned char *buffer;
+    YarlColorFormat format;
 };
 
-Yarl *yarl_init_buffer(YarlColor *canvas, int width, int height) {
+Yarl *yarl_init_buffer(unsigned char *buffer, int width, int height, YarlColorFormat format) {
 
     Yarl *yarl = malloc(sizeof(Yarl));
     if (yarl == NULL)
@@ -25,32 +30,37 @@ Yarl *yarl_init_buffer(YarlColor *canvas, int width, int height) {
 
     yarl->height = height;
     yarl->width  = width;
-    yarl->canvas = canvas;
+    yarl->buffer = buffer;
+    yarl->format = format;
 
     return yarl;
 }
 
-Yarl *yarl_init(int width, int height) {
+Yarl *yarl_init(int width, int height, YarlColorFormat format) {
 
     size_t size = width * height;
-    YarlColor *buffer = malloc(size * sizeof(YarlColor));
+    unsigned char *buffer = malloc(size * yarl_get_format_stride(format));
     if (buffer == NULL)
         return NULL;
 
-    for (size_t i=0; i < size; ++i)
-        buffer[i] = YARL_BLACK;
+    memset(buffer, 0x0, size);
 
-    return yarl_init_buffer(buffer, width, height);
+    return yarl_init_buffer(buffer, width, height, format);
+}
+
+static unsigned char *buffer_offset(const Yarl *yarl, int x, int y) {
+    size_t offset = y * yarl->width + x;
+    return yarl->buffer + offset * yarl_get_format_stride(yarl->format);
 }
 
 YarlColor yarl_get_pixel(const Yarl *yarl, int x, int y) {
-    assert(x < yarl->width);
-    assert(y < yarl->height);
-    return yarl->canvas[y * yarl->width + x];
+    assert(x < yarl->width && x >= 0);
+    assert(y < yarl->height && y >= 0);
+    return color_from_buffer(buffer_offset(yarl, x, y), yarl->format);
 }
 
-YarlColor *yarl_get_canvas(const Yarl *yarl) {
-    return yarl->canvas;
+unsigned char *yarl_get_buffer(const Yarl *yarl) {
+    return yarl->buffer;
 }
 
 int yarl_get_width(const Yarl *yarl) {
@@ -61,16 +71,35 @@ int yarl_get_height(const Yarl *yarl) {
     return yarl->height;
 }
 
+YarlColorFormat yarl_get_format(const Yarl *yarl) {
+    return yarl->format;
+}
+
+int yarl_get_format_stride(YarlColorFormat format) {
+    switch (format) {
+        case YARL_COLOR_FORMAT_ARGB:
+        case YARL_COLOR_FORMAT_ABGR:
+        case YARL_COLOR_FORMAT_RGBA:
+        case YARL_COLOR_FORMAT_BGRA:
+            return 4;
+        case YARL_COLOR_FORMAT_RGB:
+        case YARL_COLOR_FORMAT_BGR:
+            return 3;
+        default:
+            assert(!"unknown color format");
+    }
+}
+
 void yarl_destroy(Yarl *yarl) {
-    free(yarl->canvas);
+    free(yarl->buffer);
+}
+
+void yarl_draw_pixel(Yarl *yarl, int x, int y, YarlColor color) {
+    color_to_buffer(buffer_offset(yarl, x, y), color, yarl->format);
 }
 
 void yarl_fill(Yarl *yarl, YarlColor color) {
     yarl_draw_rect(yarl, 0, 0, yarl->width, yarl->height, color);
-}
-
-void yarl_draw_point(Yarl *yarl, int x, int y, YarlColor color) {
-    yarl->canvas[y * yarl->width + x] = color;
 }
 
 void yarl_draw_rect_outline(Yarl *yarl, int x, int y, int w, int h, YarlColor color) {
@@ -78,10 +107,10 @@ void yarl_draw_rect_outline(Yarl *yarl, int x, int y, int w, int h, YarlColor co
     for (int i=y; i < y+h; ++i) {
         if (i == y || i == y+h-1) {
             for (int j=x; j < x+w; ++j)
-                yarl_draw_point(yarl, j, i, color);
+                yarl_draw_pixel(yarl, j, i, color);
         } else {
-            yarl_draw_point(yarl, x, i, color);
-            yarl_draw_point(yarl, x+w, i, color);
+            yarl_draw_pixel(yarl, x, i, color);
+            yarl_draw_pixel(yarl, x+w, i, color);
         }
     }
 
@@ -90,7 +119,7 @@ void yarl_draw_rect_outline(Yarl *yarl, int x, int y, int w, int h, YarlColor co
 void yarl_draw_rect(Yarl *yarl, int x0, int y0, int w, int h, YarlColor color) {
     for (int y=y0; y < y0+h; ++y)
         for (int x=x0; x < x0+w; ++x)
-            yarl_draw_point(yarl, x, y, color);
+            yarl_draw_pixel(yarl, x, y, color);
 }
 
 void yarl_draw_arc_outline(Yarl *yarl, int cx, int cy, int r, float start_angle, float rot_count, YarlColor color) {
@@ -103,7 +132,7 @@ void yarl_draw_arc_outline(Yarl *yarl, int cx, int cy, int r, float start_angle,
     for (float a=start_angle; a < start_angle + rot_count; ++a) {
         int x = cx + r * cos(YARL_DEG_TO_RAD(a));
         int y = cy + r * sin(YARL_DEG_TO_RAD(a));
-        yarl_draw_point(yarl, x, y, color);
+        yarl_draw_pixel(yarl, x, y, color);
     }
 
 }
@@ -147,7 +176,7 @@ void yarl_draw_arc(
                 int len  = mx*mx + my*my;
 
                 if (angle == a && len < leno)
-                    yarl_draw_point(yarl, x, y, color);
+                    yarl_draw_pixel(yarl, x, y, color);
 
             }
 
@@ -173,7 +202,7 @@ void yarl_draw_circle(Yarl *yarl, int cx, int cy, int r, YarlColor color) {
             double dist = (cx - x) * (cx - x) + (cy - y) * (cy - y);
 
             if (dist < r*r)
-                yarl_draw_point(yarl, x, y, color);
+                yarl_draw_pixel(yarl, x, y, color);
         }
     }
 
@@ -246,7 +275,7 @@ void yarl_draw_triangle(Yarl *yarl, int x0, int y0, int x1, int y1, int x2, int 
             float area3 = triangle_edge_function(x2, y2, x0, y0, x, y);
 
             if (area1 < 0 && area2 < 0 && area3 < 0)
-                yarl_draw_point(yarl, x, y, color);
+                yarl_draw_pixel(yarl, x, y, color);
 
         }
     }
@@ -260,25 +289,4 @@ YarlColor yarl_lerp_color(YarlColor a, YarlColor b, float t) {
         YARL_LERP(a.b, b.b, t),
         YARL_LERP(a.a, b.a, t),
     };
-}
-
-int yarl_render_ppm(const Yarl *yarl, const char *filename) {
-    FILE *f = fopen(filename, "wb");
-    if (f == NULL)
-        return -1;
-
-    int w = yarl_get_width(yarl);
-    int h = yarl_get_height(yarl);
-    fprintf(f, "P6 %d %d %d\n", w, h, 255);
-
-    for (int y=0; y < h; ++y) {
-        for (int x=0; x < w; ++x) {
-            YarlColor color = yarl_get_pixel(yarl, x, y);
-            YarlColor rev = YARL_COLOR(color.b, color.g, color.r, color.a);
-            fwrite(&rev, 3, 1, f);
-        }
-    }
-
-    fclose(f);
-    return 0;
 }

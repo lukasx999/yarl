@@ -63,7 +63,7 @@ typedef struct {
 
 int main(void) {
 
-    Yarl *yarl = yarl_init(CANVAS_WIDTH, CANVAS_HEIGHT);
+    Yarl *yarl = yarl_init(CANVAS_WIDTH, CANVAS_HEIGHT, YARL_COLOR_FORMAT_RGBA);
     assert(yarl != NULL);
     triangles(yarl);
 
@@ -134,7 +134,7 @@ int main(void) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    YarlColor *canvas = yarl_get_canvas(yarl);
+    unsigned char *canvas = yarl_get_buffer(yarl);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, CANVAS_WIDTH, CANVAS_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, canvas);
     glGenerateMipmap(tex_canvas);
 
