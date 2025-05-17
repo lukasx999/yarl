@@ -274,7 +274,8 @@ int yarl_render_ppm(const Yarl *yarl, const char *filename) {
     for (int y=0; y < h; ++y) {
         for (int x=0; x < w; ++x) {
             YarlColor color = yarl_get_pixel(yarl, x, y);
-            fwrite(&color, 3, 1, f);
+            YarlColor rev = YARL_COLOR(color.b, color.g, color.r, color.a);
+            fwrite(&rev, 3, 1, f);
         }
     }
 

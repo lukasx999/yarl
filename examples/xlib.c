@@ -36,8 +36,8 @@ int main(void) {
             for (int x=0; x < w; ++x) {
                 YarlColor color = yarl_get_pixel(yarl, x, y);
                 // reversing byte order
-                YarlColor rev = YARL_COLOR(color.b, color.g, color.r, color.a);
-                XSetForeground(dpy, gc, *(uint32_t*) &rev);
+                // YarlColor rev = YARL_COLOR(color.b, color.g, color.r, color.a);
+                XSetForeground(dpy, gc, *(uint32_t*) &color);
                 XFillRectangle(dpy, win, gc, x, y, 1, 1);
 
             }

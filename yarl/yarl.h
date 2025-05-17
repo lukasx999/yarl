@@ -6,13 +6,13 @@
 //
 
 typedef struct {
-    unsigned char r;
-    unsigned char g;
     unsigned char b;
+    unsigned char g;
+    unsigned char r;
     unsigned char a;
 } YarlColor;
 
-#define YARL_COLOR(r, g, b, a) ((YarlColor) { (r), (g), (b), (a) })
+#define YARL_COLOR(rr, gg, bb, aa) ((YarlColor) { .r = (rr), .g = (gg), .b = (bb), .a = (aa) })
 
 #define YARL_WHITE              YARL_COLOR(0xff, 0xff, 0xff, 0xff)
 #define YARL_RED                YARL_COLOR(0xff, 0x00, 0x00, 0xff)
