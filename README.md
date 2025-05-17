@@ -23,6 +23,8 @@ Platform agnostic 2D rasterization library.
 - Raylib
 
 ## Backends - TODO
+- Rust wgpu
+- WASM HTML5 canvas
 - Vulkan
 - Cairo
 - Skia
