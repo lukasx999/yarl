@@ -36,49 +36,47 @@ typedef struct {
 // Yarl Types
 //
 
+typedef struct Yarl Yarl;
 
-typedef struct YarlContext* Yarl;
 
 //
 // Yarl State Management
 //
 
-/// Returns `NULL` on failure
-Yarl yarl_with_buffer(YarlColor **canvas, int width, int height);
-/// Returns `NULL` on failure
-Yarl yarl_init(int width, int height);
-YarlColor yarl_get_pixel(const Yarl yarl, int x, int y);
-/// Returns the last index, instead of the total width, to stop users from making off-by-one errors
-int yarl_get_width(const Yarl yarl);
-/// Returns the last index, instead of the total width, to stop users from making off-by-one errors
-int yarl_get_height(const Yarl yarl);
-void yarl_destroy(Yarl yarl);
-YarlColor **yarl_get_canvas(const Yarl yarl);
-
+// returns NULL on failure
+Yarl        *yarl_init_buffer (YarlColor *canvas, int width, int height);
+// returns NULL on failure
+Yarl        *yarl_init        (int width, int height);
+YarlColor    yarl_get_pixel   (const Yarl *yarl, int x, int y);
+YarlColor   *yarl_get_canvas  (const Yarl *yarl);
+int          yarl_get_width   (const Yarl *yarl);
+int          yarl_get_height  (const Yarl *yarl);
+// should only be called if automatic initialization was chosen using yarl_init()
+void         yarl_destroy     (Yarl *yarl);
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Yarl Drawing API
 ///////////////////////////////////////////////////////////////////////////////
 
-void yarl_fill                  (Yarl yarl, YarlColor color);
-void yarl_draw_point            (Yarl yarl, int x, int y, YarlColor color);
-void yarl_draw_rect             (Yarl yarl, int x, int y, int w, int h, YarlColor color);
-void yarl_draw_rect_outline     (Yarl yarl, int x, int y, int w, int h, YarlColor color);
+void yarl_fill                  (Yarl *yarl, YarlColor color);
+void yarl_draw_point            (Yarl *yarl, int x, int y, YarlColor color);
+void yarl_draw_rect             (Yarl *yarl, int x, int y, int w, int h, YarlColor color);
+void yarl_draw_rect_outline     (Yarl *yarl, int x, int y, int w, int h, YarlColor color);
 /// angle and rot_count are in degrees
-void yarl_draw_arc_outline      (Yarl yarl, int cx, int cy, int r, float start_angle, float rot_count, YarlColor color);
+void yarl_draw_arc_outline      (Yarl *yarl, int cx, int cy, int r, float start_angle, float rot_count, YarlColor color);
 /// angle and rot_count are in degrees
-void yarl_draw_arc              (Yarl yarl, int cx, int cy, int r, float start_angle, float rot_count, YarlColor color);
-void yarl_draw_circle           (Yarl yarl, int cx, int cy, int r, YarlColor color);
-void yarl_draw_circle_outline   (Yarl yarl, int cx, int cy, int r, YarlColor color);
-void yarl_draw_ellipse          (Yarl yarl, int x, int y, int rx, int ry, YarlColor color);
-void yarl_draw_line             (Yarl yarl, int x0, int y0, int x1, int y1, YarlColor color);
-void yarl_draw_line_thick       (Yarl yarl, int x0, int y0, int x1, int y1, YarlColor color, int thickness);
-void yarl_draw_triangle         (Yarl yarl, int x0, int y0, int x1, int y1, int x2, int y2, YarlColor color);
+void yarl_draw_arc              (Yarl *yarl, int cx, int cy, int r, float start_angle, float rot_count, YarlColor color);
+void yarl_draw_circle           (Yarl *yarl, int cx, int cy, int r, YarlColor color);
+void yarl_draw_circle_outline   (Yarl *yarl, int cx, int cy, int r, YarlColor color);
+void yarl_draw_ellipse          (Yarl *yarl, int x, int y, int rx, int ry, YarlColor color);
+void yarl_draw_line             (Yarl *yarl, int x0, int y0, int x1, int y1, YarlColor color);
+void yarl_draw_line_thick       (Yarl *yarl, int x0, int y0, int x1, int y1, YarlColor color, int thickness);
+void yarl_draw_triangle         (Yarl *yarl, int x0, int y0, int x1, int y1, int x2, int y2, YarlColor color);
 
 
 // returns -1 on error
-int yarl_render_ppm(const Yarl yarl, const char *filename);
+int yarl_render_ppm(const Yarl *yarl, const char *filename);
 
 
 ///////////////////////////////////////////////////////////////////////////////

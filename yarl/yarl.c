@@ -12,15 +12,14 @@
 
 
 
-struct YarlContext {
+struct Yarl {
     int width, height;
-    YarlColor **canvas;
+    YarlColor *canvas;
 };
 
-// TODO: make this a one dimensional array
-Yarl yarl_with_buffer(YarlColor **canvas, int width, int height) {
+Yarl *yarl_init_buffer(YarlColor *canvas, int width, int height) {
 
-    Yarl yarl = malloc(sizeof(struct YarlContext));
+    Yarl *yarl = malloc(sizeof(Yarl));
     if (yarl == NULL)
         return NULL;
 
@@ -31,62 +30,50 @@ Yarl yarl_with_buffer(YarlColor **canvas, int width, int height) {
     return yarl;
 }
 
-Yarl yarl_init(int width, int height) {
+Yarl *yarl_init(int width, int height) {
 
-    Yarl yarl = malloc(sizeof(struct YarlContext));
-    if (yarl == NULL)
+    size_t size = width * height;
+    YarlColor *buffer = malloc(size * sizeof(YarlColor));
+    if (buffer == NULL)
         return NULL;
 
-    yarl->width  = width;
-    yarl->height = height;
-    yarl->canvas = NULL;
+    for (size_t i=0; i < size; ++i)
+        buffer[i] = YARL_BLACK;
 
-    yarl->canvas = malloc(yarl->height * sizeof(YarlColor*));
-    if (yarl->canvas == NULL)
-        return NULL;
-
-    for (int y=0; y < yarl->height; ++y) {
-        yarl->canvas[y] = calloc(yarl->width, sizeof(YarlColor));
-        if (yarl->canvas[y] == NULL)
-            return NULL;
-    }
-
-    return yarl;
+    return yarl_init_buffer(buffer, width, height);
 }
 
-YarlColor yarl_get_pixel(const Yarl yarl, int x, int y) {
+YarlColor yarl_get_pixel(const Yarl *yarl, int x, int y) {
     assert(x < yarl->width);
     assert(y < yarl->height);
-    return yarl->canvas[y][x];
+    return yarl->canvas[y * yarl->width + x];
 }
 
-YarlColor **yarl_get_canvas(const Yarl yarl) {
+YarlColor *yarl_get_canvas(const Yarl *yarl) {
     return yarl->canvas;
 }
 
-int yarl_get_width(const Yarl yarl) {
-    return yarl->width - 1;
+int yarl_get_width(const Yarl *yarl) {
+    return yarl->width;
 }
 
-int yarl_get_height(const Yarl yarl) {
-    return yarl->height - 1;
+int yarl_get_height(const Yarl *yarl) {
+    return yarl->height;
 }
 
-void yarl_destroy(Yarl yarl) {
-    for (int y=0; y < yarl->height; ++y)
-        free(yarl->canvas[y]);
+void yarl_destroy(Yarl *yarl) {
     free(yarl->canvas);
 }
 
-void yarl_fill(Yarl yarl, YarlColor color) {
+void yarl_fill(Yarl *yarl, YarlColor color) {
     yarl_draw_rect(yarl, 0, 0, yarl->width, yarl->height, color);
 }
 
-void yarl_draw_point(Yarl yarl, int x, int y, YarlColor color) {
-    yarl->canvas[y][x] = color;
+void yarl_draw_point(Yarl *yarl, int x, int y, YarlColor color) {
+    yarl->canvas[y * yarl->width + x] = color;
 }
 
-void yarl_draw_rect_outline(Yarl yarl, int x, int y, int w, int h, YarlColor color) {
+void yarl_draw_rect_outline(Yarl *yarl, int x, int y, int w, int h, YarlColor color) {
 
     for (int i=y; i < y+h; ++i) {
         if (i == y || i == y+h-1) {
@@ -100,13 +87,13 @@ void yarl_draw_rect_outline(Yarl yarl, int x, int y, int w, int h, YarlColor col
 
 }
 
-void yarl_draw_rect(Yarl yarl, int x0, int y0, int w, int h, YarlColor color) {
+void yarl_draw_rect(Yarl *yarl, int x0, int y0, int w, int h, YarlColor color) {
     for (int y=y0; y < y0+h; ++y)
         for (int x=x0; x < x0+w; ++x)
             yarl_draw_point(yarl, x, y, color);
 }
 
-void yarl_draw_arc_outline(Yarl yarl, int cx, int cy, int r, float start_angle, float rot_count, YarlColor color) {
+void yarl_draw_arc_outline(Yarl *yarl, int cx, int cy, int r, float start_angle, float rot_count, YarlColor color) {
 
     start_angle = fmodf(start_angle, 360);
 
@@ -122,7 +109,7 @@ void yarl_draw_arc_outline(Yarl yarl, int cx, int cy, int r, float start_angle, 
 }
 
 void yarl_draw_arc(
-    Yarl yarl,
+    Yarl *yarl,
     int cx,
     int cy,
     int r,
@@ -169,11 +156,11 @@ void yarl_draw_arc(
 
 }
 
-void yarl_draw_circle_outline(Yarl yarl, int cx, int cy, int r, YarlColor color) {
+void yarl_draw_circle_outline(Yarl *yarl, int cx, int cy, int r, YarlColor color) {
     yarl_draw_arc_outline(yarl, cx, cy, r, 0, 360, color);
 }
 
-void yarl_draw_circle(Yarl yarl, int cx, int cy, int r, YarlColor color) {
+void yarl_draw_circle(Yarl *yarl, int cx, int cy, int r, YarlColor color) {
 
     int x0 = YARL_CLAMP(cx - r, 0, yarl->width);
     int y0 = YARL_CLAMP(cy - r, 0, yarl->height);
@@ -193,15 +180,21 @@ void yarl_draw_circle(Yarl yarl, int cx, int cy, int r, YarlColor color) {
 }
 
 // TODO:
-void yarl_draw_ellipse(Yarl yarl, int cx, int cy, int rx, int ry, YarlColor color) {
+void yarl_draw_ellipse(Yarl *yarl, int cx, int cy, int rx, int ry, YarlColor color) {
+    (void) cx;
+    (void) cy;
+    (void) rx;
+    (void) ry;
+    (void) color;
+    (void) yarl;
     assert(!"TODO");
 }
 
-void yarl_draw_line(Yarl yarl, int x0, int y0, int x1, int y1, YarlColor color) {
+void yarl_draw_line(Yarl *yarl, int x0, int y0, int x1, int y1, YarlColor color) {
     yarl_draw_line_thick(yarl, x0, y0, x1, y1, color, 1);
 }
 
-void yarl_draw_line_thick(Yarl yarl, int x0, int y0, int x1, int y1, YarlColor color, int thickness) {
+void yarl_draw_line_thick(Yarl *yarl, int x0, int y0, int x1, int y1, YarlColor color, int thickness) {
 
     float dy = y1 - y0;
     float dx = x1 - x0;
@@ -234,7 +227,7 @@ static inline float triangle_edge_function(int x0, int y0, int x1, int y1, int x
     return (x1-x0) * (y2-y0) - (y1-y0) * (x2-x0);
 }
 
-void yarl_draw_triangle(Yarl yarl, int x0, int y0, int x1, int y1, int x2, int y2, YarlColor color) {
+void yarl_draw_triangle(Yarl *yarl, int x0, int y0, int x1, int y1, int x2, int y2, YarlColor color) {
 
     int h = yarl_get_height(yarl);
     int w = yarl_get_width(yarl);
@@ -269,7 +262,7 @@ YarlColor yarl_lerp_color(YarlColor a, YarlColor b, float t) {
     };
 }
 
-int yarl_render_ppm(const Yarl yarl, const char *filename) {
+int yarl_render_ppm(const Yarl *yarl, const char *filename) {
     FILE *f = fopen(filename, "wb");
     if (f == NULL)
         return -1;

@@ -14,17 +14,14 @@
 
 #include "examples.c"
 
-// https://wayland-book.com/
-
-typedef struct {
-    Yarl yarl;
-
+typedef struct
+{
+    Yarl *yarl;
     struct wl_display    *dpy;
     struct wl_registry   *reg;
     struct wl_compositor *comp;
     struct wl_surface    *surface;
     struct wl_shm        *shm;
-
     struct xdg_wm_base   *xdg_wm_base;
     struct xdg_surface   *xdg_surface;
     struct xdg_toplevel  *xdg_toplevel;
@@ -36,12 +33,7 @@ static void xdg_base_ping(void *data, struct xdg_wm_base *xdg_wm_base, uint32_t 
     xdg_wm_base_pong(xdg_wm_base, serial);
 }
 
-
-static struct xdg_wm_base_listener xdg_wm_base_listener = {
-    .ping = xdg_base_ping,
-};
-
-void reg_global(
+void registry_global(
     void *data,
     struct wl_registry *wl_registry,
     uint32_t name,
@@ -62,6 +54,10 @@ void reg_global(
 
     else if (!strcmp(interface, xdg_wm_base_interface.name)) {
         state->xdg_wm_base = wl_registry_bind(wl_registry, name, &xdg_wm_base_interface, 1);
+
+        static struct xdg_wm_base_listener xdg_wm_base_listener = {
+            .ping = xdg_base_ping,
+        };
 
         xdg_wm_base_add_listener(state->xdg_wm_base, &xdg_wm_base_listener, state);
     }
@@ -88,18 +84,15 @@ static void wl_buffer_release(void *data, struct wl_buffer *wl_buffer)
     wl_buffer_destroy(wl_buffer);
 }
 
-static struct wl_buffer_listener wl_buffer_listener = {
-    .release = wl_buffer_release,
-};
-
 struct wl_buffer *draw(State *state)
 {
 
     int fd = create_shm();
     assert(fd >= 0);
 
-    int width = 1920, height = 1080;
-    int stride = width * 4; // 4 bytes per pixel
+    int width = yarl_get_width(state->yarl);
+    int height = yarl_get_height(state->yarl);
+    int stride = width * sizeof(YarlColor); // 4 bytes per pixel
     int size = height * stride;
 
     int ret = ftruncate(fd, size);
@@ -114,14 +107,13 @@ struct wl_buffer *draw(State *state)
     close(fd);
 
     // draw
-    // FIX: this mess
-    YarlColor data[height][width];
-    for (int y=0; y < height; ++y) {
-        YarlColor **color = yarl_get_canvas(state->yarl);
-        memcpy(data[y], color[y], sizeof(YarlColor)*width);
-    }
-    memcpy(pool_data, data, width*height*4);
+    YarlColor *canvas = yarl_get_canvas(state->yarl);
+    memcpy(pool_data, canvas, size);
     munmap(pool_data, size);
+
+    static struct wl_buffer_listener wl_buffer_listener = {
+        .release = wl_buffer_release,
+    };
 
     wl_buffer_add_listener(buffer, &wl_buffer_listener, NULL);
 
@@ -141,13 +133,10 @@ static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, u
 int main(void)
 {
 
-    Yarl yarl = yarl_init(500, 500);
-    assert(yarl != NULL);
+    Yarl *yarl = yarl_init(500, 500);
     triangles(yarl);
+    State state;
 
-
-
-    State state = { 0 };
     state.yarl = yarl;
 
     state.dpy = wl_display_connect(NULL);
@@ -157,16 +146,19 @@ int main(void)
     assert(state.reg != NULL);
 
     struct wl_registry_listener reg_listener = {
-        .global = reg_global,
+        .global = registry_global,
         .global_remove = NULL,
     };
     wl_registry_add_listener(state.reg, &reg_listener, &state);
     wl_display_roundtrip(state.dpy);
 
-    state.surface = wl_compositor_create_surface(state.comp);
+    state.surface     = wl_compositor_create_surface(state.comp);
     state.xdg_surface = xdg_wm_base_get_xdg_surface(state.xdg_wm_base, state.surface);
 
-    struct xdg_surface_listener xdg_surface_listener = { .configure = xdg_surface_configure };
+    static struct xdg_surface_listener xdg_surface_listener = {
+        .configure = xdg_surface_configure,
+    };
+
     xdg_surface_add_listener(state.xdg_surface, &xdg_surface_listener, &state);
 
     state.xdg_toplevel = xdg_surface_get_toplevel(state.xdg_surface);
@@ -175,8 +167,6 @@ int main(void)
 
     while (wl_display_dispatch(state.dpy)) {
     }
-
-    yarl_destroy(yarl);
 
     return 0;
 }

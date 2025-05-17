@@ -14,7 +14,7 @@
 
 int main(void) {
 
-    Yarl yarl = yarl_init(CANVAS_WIDTH, CANVAS_HEIGHT);
+    Yarl *yarl = yarl_init(CANVAS_WIDTH, CANVAS_HEIGHT);
     assert(yarl != NULL);
 
     for (size_t i=0; i < examples_size; ++i) {
@@ -23,15 +23,9 @@ int main(void) {
         mkdir(DIRNAME, 0777);
         snprintf(buf, sizeof(buf), DIRNAME "/%s.png", examples[i].name);
 
-        YarlColor data[CANVAS_HEIGHT][CANVAS_WIDTH] = { 0 };
-        for (int y=0; y < CANVAS_HEIGHT; ++y) {
-            YarlColor **color = yarl_get_canvas(yarl);
-            memcpy(data[y], color[y], sizeof(YarlColor)*CANVAS_WIDTH);
-        }
-
-        int ret = stbi_write_png(buf, CANVAS_WIDTH, CANVAS_HEIGHT, 4, data, 4 * CANVAS_WIDTH);
+        YarlColor *canvas = yarl_get_canvas(yarl);
+        int ret = stbi_write_png(buf, CANVAS_WIDTH, CANVAS_HEIGHT, 4, canvas, 4 * CANVAS_WIDTH);
         assert(ret != 0);
-
     }
 
     yarl_destroy(yarl);

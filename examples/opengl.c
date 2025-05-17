@@ -36,7 +36,7 @@ static const char *vert_src =
 
     "void main() {\n"
         "uv = a_uv;\n"
-        "gl_Position = vec4(a_pos*0.5, 0.0, 1.0);\n"
+        "gl_Position = vec4(a_pos*0.75, 0.0, 1.0);\n"
     "}\n";
 
 static const char *frag_src =
@@ -48,7 +48,8 @@ static const char *frag_src =
     "uniform sampler2D tex;\n"
 
     "void main() {\n"
-        "fragment = texture(tex, uv);\n"
+        "fragment = texture(tex, vec2(uv.x, 1.0 - uv.y));\n"
+        // texture must be y-flipped        ^^^^^^^^^^
     "}\n";
 
 typedef struct {
@@ -62,7 +63,7 @@ typedef struct {
 
 int main(void) {
 
-    Yarl yarl = yarl_init(CANVAS_WIDTH, CANVAS_HEIGHT);
+    Yarl *yarl = yarl_init(CANVAS_WIDTH, CANVAS_HEIGHT);
     assert(yarl != NULL);
     triangles(yarl);
 
@@ -133,16 +134,8 @@ int main(void) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    // texture data has to be contiguous
-    YarlColor data[CANVAS_HEIGHT][CANVAS_WIDTH] = { 0 };
-    for (int y=0; y < CANVAS_HEIGHT; ++y) {
-        YarlColor **color = yarl_get_canvas(yarl);
-        // texture will be flipped along y-axis without this
-        memcpy(data[y], color[CANVAS_HEIGHT-1-y], sizeof(YarlColor)*CANVAS_WIDTH);
-        //                    ^^^^^^^^^^^^^
-    }
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, CANVAS_WIDTH, CANVAS_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    YarlColor *canvas = yarl_get_canvas(yarl);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, CANVAS_WIDTH, CANVAS_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, canvas);
     glGenerateMipmap(tex_canvas);
 
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);

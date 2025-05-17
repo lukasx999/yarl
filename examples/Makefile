@@ -1,4 +1,4 @@
-CFLAGS=-Wall -Wextra -std=c11 -pedantic -O3 -Ilib
+CFLAGS=-Wall -Wextra -std=c11 -pedantic -O3 -Ilib -ggdb
 LIBS=-lm -lraylib -lX11 -lGL -lglfw -lwayland-client
 YARL=../yarl/libyarl.a
 

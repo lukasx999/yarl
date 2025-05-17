@@ -12,7 +12,8 @@
 
 int main(void) {
 
-    Yarl yarl = yarl_init(500, 500);
+    Yarl *yarl = yarl_init(500, 500);
+    assert(yarl != NULL);
 
     for (size_t i=0; i < examples_size; ++i) {
         examples[i].fn(yarl);

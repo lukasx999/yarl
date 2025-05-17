@@ -6,7 +6,7 @@
 
 
 
-void triangles(Yarl yarl) {
+void triangles(Yarl *yarl) {
 
     int w = yarl_get_width(yarl);
     int h = yarl_get_height(yarl);
@@ -31,7 +31,7 @@ void triangles(Yarl yarl) {
     yarl_draw_triangle(yarl, w/2, h/2, 50, h, w-50, h, YARL_YELLOW);
 }
 
-void pacman(Yarl yarl) {
+void pacman(Yarl *yarl) {
 
     yarl_fill(yarl, YARL_BLACK);
     yarl_draw_arc(
@@ -46,7 +46,7 @@ void pacman(Yarl yarl) {
 
 }
 
-void gradient(Yarl yarl) {
+void gradient(Yarl *yarl) {
 
     int w = yarl_get_width(yarl);
     int h = yarl_get_height(yarl);
@@ -61,7 +61,7 @@ void gradient(Yarl yarl) {
 
 }
 
-void grid(Yarl yarl) {
+void grid(Yarl *yarl) {
 
     int h = yarl_get_height(yarl);
     int w = yarl_get_width(yarl);
@@ -88,7 +88,7 @@ void grid(Yarl yarl) {
 
 }
 
-void rectangles(Yarl yarl) {
+void rectangles(Yarl *yarl) {
 
     int w = yarl_get_width(yarl);
     int h = yarl_get_height(yarl);
@@ -103,14 +103,14 @@ void rectangles(Yarl yarl) {
 
 }
 
-void japan(Yarl yarl) {
+void japan(Yarl *yarl) {
     int w = yarl_get_width(yarl);
     int h = yarl_get_height(yarl);
     yarl_fill(yarl, YARL_WHITE);
     yarl_draw_circle(yarl, w/2, h/2, 100, YARL_RED);
 }
 
-void circle_gradient(Yarl yarl) {
+void circle_gradient(Yarl *yarl) {
 
     int w = yarl_get_width(yarl);
     int h = yarl_get_height(yarl);
@@ -126,7 +126,7 @@ void circle_gradient(Yarl yarl) {
 
 
 typedef struct {
-    void (*fn)(Yarl);
+    void (*fn)(Yarl*);
     const char *name;
 } Example;
 

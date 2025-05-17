@@ -10,11 +10,12 @@ Platform agnostic 2D rasteriztation library.
 - Circle
 - Line
 
-## Implemented Backens
+## Implemented Backends
 - OpenGL
-- PPM
-- PNG
+- Wayland
 - Xlib
+- PNG
+- PPM
 - Raylib
 
 ## Build Instructions
