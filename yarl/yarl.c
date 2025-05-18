@@ -8,9 +8,8 @@
 #include <stdbool.h>
 #include <math.h>
 #include <sys/param.h>
-#include "formats.h"
 
-#include "util.h"
+#include "formats.h"
 
 
 
@@ -135,6 +134,43 @@ void yarl_draw_arc_outline(Yarl *yarl, int cx, int cy, int r, float start_angle,
         yarl_draw_pixel(yarl, x, y, color);
     }
 
+}
+
+// `````````````````````````````````````````
+// ````````````````````270°`````````````````
+// `````````````````````|```````````````````
+// `````````225°````````|`````````315°``````
+// `````````````````````|```````````````````
+// `````````````````````|```````````````````
+// ````180°<------------*------------>0°````
+// `````````````````````|```````````````````
+// `````````````````````|```````````````````
+// `````````135°````````|`````````45°```````
+// `````````````````````|```````````````````
+// ````````````````````90°``````````````````
+// ````````````````````````````````````````
+// float rotation_angle_around_center(int x, int y) {
+//     float angle = floorf(YARL_RAD_TO_DEG(atanf((float) y / x)));
+//     if (y > 0.)
+//         angle = 360. - angle;
+//
+//     if (x < 0.)
+//         angle = 180. - angle;
+//
+//     angle = fabsf(angle);
+//     return angle;
+// }
+
+static float rotation_angle_around_center(int x, int y) {
+    float angle = floorf(YARL_RAD_TO_DEG(atanf((float) y / x)));
+    if (y > 0.)
+        angle = 360. - angle;
+
+    if (x < 0.)
+        angle = 180. - angle;
+
+    angle = fabsf(angle);
+    return angle;
 }
 
 void yarl_draw_arc(

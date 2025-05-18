@@ -1,6 +1,8 @@
 #!/bin/sh
 set -euxo pipefail
 
+make -C ../yarl web
+
 clang \
 wasm.c \
 ../yarl/libyarl.a \

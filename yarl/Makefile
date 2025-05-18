@@ -1,23 +1,21 @@
 CC=cc
 CFLAGS=-Wall -Wextra -std=c11 -pedantic -ggdb -O0
+WEBCC=clang
+WEBFLAGS=-Wall -Wextra -std=c11 -pedantic -ggdb -O0 --target=wasm32-wasi --sysroot=/usr/share/wasi-sysroot/ --no-standard-libraries
 LIBS=-lm
 AR=ar
 ARFLAGS=rcs
-OBJS=yarl.o util.o
-DEPS=yarl.h util.h
-WEBCC=clang
-WEBFLAGS=--target=wasm32-wasi --sysroot=/usr/share/wasi-sysroot/ --no-standard-libraries
+OBJS=yarl.o
+DEPS=yarl.h formats.h
 
 static: libyarl.a
 shared: libyarl.so
-all: shared static doc test
+all: shared static test
 
-doc:
-	doxygen
+CC=$(WEBCC)
+CFLAGS=$(WEBFLAGS)
+web: libyarl.a
 
-web:
-	$(WEBCC) $(WEBFLAGS) $(FEATURES) -c yarl.c -o yarl.o
-	$(AR) $(ARFLAGS) libyarl.a yarl.o
 
 test: test.o static
 	@$(CC) $(CFLAGS) $< libyarl.a -o test -lm
@@ -30,11 +28,11 @@ test: test.o static
 	@echo "LINK" $^
 
 %.a: $(OBJS)
-	@$(AR) $(ARFLAGS) $@ $^
+	@$(AR) $(ARFLAGS) $@ $^ $(LIBS)
 	@echo "AR" $^
 
 %.o: %.c Makefile $(DEPS)
-	@$(CC) $(CFLAGS) $(FEATURES) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "CC" $<
 
 clean:
