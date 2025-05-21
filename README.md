@@ -13,6 +13,7 @@ Platform agnostic 2D rasterization library.
 ## Primitives - TODO
 - Ellipse
 - Text
+- Bezier Curve
 
 ## Implemented Backends
 - OpenGL

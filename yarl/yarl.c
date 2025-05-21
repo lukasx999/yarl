@@ -235,7 +235,7 @@ void yarl_draw_circle(Yarl *yarl, int cx, int cy, int r, YarlColor color) {
     for (int y=y0; y < y1; ++y) {
         for (int x=x0; x < x1; ++x) {
 
-            double dist = (cx - x) * (cx - x) + (cy - y) * (cy - y);
+            double dist = (cx-x) * (cx-x) + (cy-y) * (cy-y);
 
             if (dist < r*r)
                 yarl_draw_pixel(yarl, x, y, color);
@@ -244,15 +244,26 @@ void yarl_draw_circle(Yarl *yarl, int cx, int cy, int r, YarlColor color) {
 
 }
 
-// TODO:
 void yarl_draw_ellipse(Yarl *yarl, int cx, int cy, int rx, int ry, YarlColor color) {
-    (void) cx;
-    (void) cy;
-    (void) rx;
-    (void) ry;
-    (void) color;
-    (void) yarl;
-    assert(!"TODO");
+
+    int x0 = YARL_CLAMP(cx - rx, 0, yarl->width);
+    int y0 = YARL_CLAMP(cy - ry, 0, yarl->height);
+    int x1 = YARL_CLAMP(cx + rx, 0, yarl->width);
+    int y1 = YARL_CLAMP(cy + ry, 0, yarl->height);
+
+    for (int y=y0; y < y1; ++y) {
+        for (int x=x0; x < x1; ++x) {
+
+            double dist = (cx-x) * (cx-x) + (cy-y) * (cy-y);
+
+            // TODO:
+            int r = rx+ry;
+
+            if (dist < r*r)
+                yarl_draw_pixel(yarl, x, y, color);
+        }
+    }
+
 }
 
 void yarl_draw_line(Yarl *yarl, int x0, int y0, int x1, int y1, YarlColor color) {
@@ -293,6 +304,7 @@ static inline float triangle_edge_function(int x0, int y0, int x1, int y1, int x
 }
 
 void yarl_draw_triangle(Yarl *yarl, int x0, int y0, int x1, int y1, int x2, int y2, YarlColor color) {
+    // TODO: sort points first
 
     int h = yarl_get_height(yarl);
     int w = yarl_get_width(yarl);
