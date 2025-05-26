@@ -7,7 +7,6 @@
 #include <string.h>
 #include <stdbool.h>
 #include <math.h>
-#include <sys/param.h>
 
 #include "formats.h"
 
@@ -94,6 +93,17 @@ void yarl_destroy(Yarl *yarl) {
 }
 
 void yarl_draw_pixel(Yarl *yarl, int x, int y, YarlColor color) {
+
+    if (x >= yarl->width) {
+        fprintf(stderr, "YARL WARNING: x-index is out of bounds.\n");
+        fprintf(stderr, "Width: %d, x: %d\n", yarl->width, x);
+    }
+
+    if (y >= yarl->height) {
+        fprintf(stderr, "YARL WARNING: y-index is out of bounds.\n");
+        fprintf(stderr, "Height: %d, y: %d\n", yarl->height, y);
+    }
+
     color_to_buffer(buffer_offset(yarl, x, y), color, yarl->format);
 }
 
@@ -275,11 +285,6 @@ void yarl_draw_line_thick(Yarl *yarl, int x0, int y0, int x1, int y1, YarlColor 
     float dy = y1 - y0;
     float dx = x1 - x0;
 
-#ifdef YARL_DEBUG
-    yarl_draw_circle(yarl, x1, y1, 3, color);
-    yarl_draw_circle(yarl, x0, y0, 3, color);
-#endif // YARL_DEBUG
-
     // avoid divide-by-zero errors
     if (dx == 0) {
         for (float y=y0; y < y1; ++y)
@@ -290,7 +295,7 @@ void yarl_draw_line_thick(Yarl *yarl, int x0, int y0, int x1, int y1, YarlColor 
     float m = dy / dx;
     // the needed precision for rendering lines
     float step = fabsf(dx / yarl->width);
-    int start = MIN(x0, x1);
+    int start = YARL_MIN(x0, x1);
 
     for (float x=start; x < start + fabsf(dx); x += step) {
         float y = m * (x - x0) + y0;
@@ -304,16 +309,12 @@ static inline float triangle_edge_function(int x0, int y0, int x1, int y1, int x
 }
 
 void yarl_draw_triangle(Yarl *yarl, int x0, int y0, int x1, int y1, int x2, int y2, YarlColor color) {
-    // TODO: sort points first
-
-    int h = yarl_get_height(yarl);
-    int w = yarl_get_width(yarl);
 
     // bounding box of triangle
-    int xs = YARL_CLAMP(MIN(x0, MIN(x1, x2)), 0, w);
-    int xe = YARL_CLAMP(MAX(x0, MAX(x1, x2)), 0, w);
-    int ys = YARL_CLAMP(MIN(y0, MIN(y1, y2)), 0, h);
-    int ye = YARL_CLAMP(MAX(y0, MAX(y1, y2)), 0, h);
+    int xs = YARL_MIN3(x0, x1, x2);
+    int xe = YARL_MAX3(x0, x1, x2);
+    int ys = YARL_MIN3(y0, y1, y2);
+    int ye = YARL_MAX3(y0, y1, y2);
 
     for (int y=ys; y < ye; ++y) {
         for (int x=xs; x < xe; ++x) {
@@ -322,7 +323,7 @@ void yarl_draw_triangle(Yarl *yarl, int x0, int y0, int x1, int y1, int x2, int 
             float area2 = triangle_edge_function(x1, y1, x2, y2, x, y);
             float area3 = triangle_edge_function(x2, y2, x0, y0, x, y);
 
-            if (area1 < 0 && area2 < 0 && area3 < 0)
+            if ((area1 < 0 && area2 < 0 && area3 < 0) || (area1 > 0 && area2 > 0 && area3 > 0))
                 yarl_draw_pixel(yarl, x, y, color);
 
         }

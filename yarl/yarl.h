@@ -107,6 +107,12 @@ void yarl_draw_triangle         (Yarl *yarl, int x0, int y0, int x1, int y1, int
 #define YARL_MAX(a, b) \
     ((a) > (b) ? (a) : (b))
 
+#define YARL_MIN3(a, b, c) \
+    YARL_MIN(a, YARL_MIN(b, c))
+
+#define YARL_MAX3(a, b, c) \
+    YARL_MAX(a, YARL_MAX(b, c))
+
 #define YARL_RAD_TO_DEG(rads) \
     ((rads) * (180. / YARL_PI))
 
