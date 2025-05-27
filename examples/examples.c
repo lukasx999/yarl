@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <math.h>
 
 #include <yarl.h>
@@ -42,8 +43,7 @@ void gradient(Yarl *yarl) {
     yarl_fill(yarl, YARL_BLACK);
 
     for (int i=0; i < w; ++i) {
-        int range = ceil(w / 255.);
-        YarlColor color = yarl_lerp_color(YARL_BLACK, YARL_RED, i/range+1);
+        YarlColor color = yarl_lerp_color(YARL_BLACK, YARL_BLUE, (float)i/w);
         yarl_draw_rect(yarl, i, 0, 1, h, color);
     }
 
@@ -56,21 +56,23 @@ void grid(Yarl *yarl) {
 
     yarl_fill(yarl, YARL_BLACK);
 
-    int size = 50;
-    int spacing = 1;
+    int size = 30;
+    int spacing = 10;
+    int n = w/(size+spacing);
 
-    YarlColor color = YARL_BLUE;
-
-    for (int y=0; y < h/(size+spacing); ++y) {
-        for (int x=0; x < w/(size+spacing); ++x) {
+    for (int y=0; y < n; ++y) {
+        for (int x=0; x < n; ++x) {
+            float t = (float) x * y;
+            YarlColor color = yarl_lerp_color(YARL_RED, YARL_BLUE, t*2+1);
             yarl_draw_rect(
                 yarl,
-                spacing + x * (size+spacing),
-                spacing + y * (size+spacing),
+                x*(size+spacing),
+                y*(size+spacing),
                 size,
                 size,
                 color
             );
+
         }
     }
 
@@ -105,7 +107,7 @@ void circle_gradient(Yarl *yarl) {
     yarl_fill(yarl, YARL_BLACK);
 
     for (int i=w/2; i > 0; --i) {
-        YarlColor color = yarl_lerp_color(YARL_RED, YARL_BLUE, i);
+        YarlColor color = yarl_lerp_color(YARL_RED, YARL_BLUE, (float)i/w);
         yarl_draw_circle(yarl, w/2, h/2, i, color);
     }
 

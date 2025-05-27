@@ -13,8 +13,8 @@ shared: libyarl.so
 all: shared static test
 
 # TODO: add conditional for cc flags
-# CC=$(WEBCC)
-# CFLAGS=$(WEBFLAGS)
+CC=$(WEBCC)
+CFLAGS=$(WEBFLAGS)
 web: libyarl.a
 
 

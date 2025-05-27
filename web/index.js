@@ -18,14 +18,26 @@ const wasi = new WASI({
     );
 
 
-    const width = 500;
-    const height = 500;
+    const width = 300;
+    const height = width;
     const stride = 4;
-    let buffer = new Uint8Array(width*height*stride);
+    let buf = new Uint8ClampedArray(width*height*stride);
+    for (let i=0; i < buf.length; ++i) {
+        buf[i] = 100;
+    }
 
     const render = wasm.instance.exports.render;
-    const buf = render(buffer, width, height);
-    const xs = Uint8Array.from(buf);
-    console.log(xs);
+    render(buf, width, height);
+
+    // document.getElementById("img").src = URL.createObjectURL(
+    //     new Blob([buf.buffer], { type: 'image/png' })
+    // );
+
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    let imageData = new ImageData(buf, width);
+    ctx.putImageData(imageData, 20, 20);
+
 
 })()
