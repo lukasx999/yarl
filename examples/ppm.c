@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdlib.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <linux/limits.h>
@@ -12,7 +13,8 @@
 
 int main(void) {
 
-    Yarl *yarl = yarl_init(500, 500, YARL_COLOR_FORMAT_RGB);
+    unsigned char *buffer = malloc(500 * 500 * 4);
+    Yarl *yarl = yarl_init(buffer, 500, 500, YARL_COLOR_FORMAT_RGB);
     assert(yarl != NULL);
 
     for (size_t i=0; i < examples_size; ++i) {
@@ -34,7 +36,6 @@ int main(void) {
         fclose(f);
     }
 
-    yarl_destroy(yarl);
-
+    free(buffer);
     return 0;
 }

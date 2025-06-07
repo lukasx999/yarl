@@ -17,7 +17,7 @@ usage:
 	< /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
 	> lib/xdg-shell-client-protocol.h
 
-	@make -C ../yarl
+	@make -BC ../yarl
 	@echo "Building Yarl library..."
 	@cc $(CFLAGS) lib/xdg-shell-protocol.c $< -o $@ $(YARL) -I../yarl $(LIBS)
 	@echo "Building example:" $<

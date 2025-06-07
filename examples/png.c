@@ -12,7 +12,8 @@
 
 int main(void) {
 
-    Yarl *yarl = yarl_init(500, 500, YARL_COLOR_FORMAT_RGBA);
+    unsigned char *buffer = malloc(500 * 500 * 4);
+    Yarl *yarl = yarl_init(buffer, 500, 500, YARL_COLOR_FORMAT_RGBA);
     int w = yarl_get_width(yarl);
     int h = yarl_get_height(yarl);
     int stride = 4;
@@ -29,6 +30,6 @@ int main(void) {
         assert(ret != 0);
     }
 
-    yarl_destroy(yarl);
+    free(buffer);
     return 0;
 }

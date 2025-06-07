@@ -132,7 +132,8 @@ static void xdg_surface_configure(void *data, struct xdg_surface *xdg_surface, u
 int main(void)
 {
 
-    Yarl *yarl = yarl_init(500, 500, YARL_COLOR_FORMAT_BGRA);
+    unsigned char *buffer = malloc(500 * 500 * 4);
+    Yarl *yarl = yarl_init(buffer, 500, 500, YARL_COLOR_FORMAT_BGRA);
     triangles(yarl);
     State state;
 
@@ -167,5 +168,6 @@ int main(void)
     while (wl_display_dispatch(state.dpy)) {
     }
 
+    free(buffer);
     return 0;
 }

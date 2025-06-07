@@ -3,30 +3,24 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <math.h>
 
 #include "formats.h"
 
 
+void yarl_init(
+    Yarl *yarl,
+    unsigned char *buffer,
+    int width,
+    int height,
+    YarlColorFormat format,
+    YarlEnvironment env
+) {
 
-struct Yarl {
-    int width, height;
-    // binary canvas - could represent any color format
-    // use the associated functions from `formats.h` for extracting color values
-    unsigned char *buffer;
-    YarlColorFormat format;
-};
-
-Yarl *yarl_init_buffer(unsigned char *buffer, int width, int height, YarlColorFormat format) {
-
-    static Yarl yarl;
-
-    yarl.height = height;
-    yarl.width  = width;
-    yarl.buffer = buffer;
-    yarl.format = format;
-
-    return &yarl;
+    yarl->height = height;
+    yarl->width  = width;
+    yarl->buffer = buffer;
+    yarl->format = format;
+    yarl->env    = env;
 }
 
 static unsigned char *buffer_offset(const Yarl *yarl, int x, int y) {
@@ -35,8 +29,12 @@ static unsigned char *buffer_offset(const Yarl *yarl, int x, int y) {
 }
 
 YarlColor yarl_get_pixel(const Yarl *yarl, int x, int y) {
-    assert(x < yarl->width && x >= 0);
-    assert(y < yarl->height && y >= 0);
+    // if (x >= yarl->width && x < 0)
+    //     yarl->env.panic();
+    //
+    // if (y >= yarl->height && y < 0)
+    //     yarl->env.panic();
+
     return color_from_buffer(buffer_offset(yarl, x, y), yarl->format);
 }
 
@@ -66,23 +64,16 @@ int yarl_get_format_stride(YarlColorFormat format) {
         case YARL_COLOR_FORMAT_RGB:
         case YARL_COLOR_FORMAT_BGR:
             return 3;
-        default:
-            assert(!"unknown color format");
     }
 }
 
 void yarl_draw_pixel(Yarl *yarl, int x, int y, YarlColor color) {
 
-    // TODO:
-    // if (x >= yarl->width) {
-    //     fprintf(stderr, "YARL WARNING: x-index is out of bounds.\n");
-    //     fprintf(stderr, "Width: %d, x: %d\n", yarl->width, x);
-    // }
+    // if (x >= yarl->width)
+    //     yarl->env.panic();
     //
-    // if (y >= yarl->height) {
-    //     fprintf(stderr, "YARL WARNING: y-index is out of bounds.\n");
-    //     fprintf(stderr, "Height: %d, y: %d\n", yarl->height, y);
-    // }
+    // if (y >= yarl->height)
+    //     yarl->env.panic();
 
     color_to_buffer(buffer_offset(yarl, x, y), color, yarl->format);
 }
@@ -112,15 +103,16 @@ void yarl_draw_rect(Yarl *yarl, int x0, int y0, int w, int h, YarlColor color) {
 }
 
 void yarl_draw_arc_outline(Yarl *yarl, int cx, int cy, int r, float start_angle, float rot_count, YarlColor color) {
+    YarlEnvironment env = yarl->env;
 
-    start_angle = fmodf(start_angle, 360);
+    start_angle = env.fmodf(start_angle, 360);
 
     if (start_angle < 0.)
-        start_angle = 360. - fabsf(start_angle);
+        start_angle = 360. - env.fabsf(start_angle);
 
     for (float a=start_angle; a < start_angle + rot_count; ++a) {
-        int x = cx + r * cos(YARL_DEG_TO_RAD(a));
-        int y = cy + r * sin(YARL_DEG_TO_RAD(a));
+        int x = cx + r * env.cos(YARL_DEG_TO_RAD(a));
+        int y = cy + r * env.sin(YARL_DEG_TO_RAD(a));
         yarl_draw_pixel(yarl, x, y, color);
     }
 
@@ -139,15 +131,15 @@ void yarl_draw_arc_outline(Yarl *yarl, int cx, int cy, int r, float start_angle,
 // `````````````````````|```````````````````
 // ````````````````````90°``````````````````
 // ````````````````````````````````````````
-static float rotation_angle_around_center(int x, int y) {
-    float angle = floorf(YARL_RAD_TO_DEG(atanf((float) y / x)));
+static float rotation_angle_around_center(YarlEnvironment env, int x, int y) {
+    float angle = env.floorf(YARL_RAD_TO_DEG(env.atanf((float) y / x)));
     if (y > 0.)
         angle = 360. - angle;
 
     if (x < 0.)
         angle = 180. - angle;
 
-    angle = fabsf(angle);
+    angle = env.fabsf(angle);
     return angle;
 }
 
@@ -161,10 +153,12 @@ void yarl_draw_arc(
     YarlColor color
 ) {
 
-    start_angle = fmodf(start_angle, 360.);
+    YarlEnvironment env = yarl->env;
+
+    start_angle = env.fmodf(start_angle, 360.);
 
     if (start_angle < 0.)
-        start_angle = 360. - fabsf(start_angle);
+        start_angle = 360. - env.fabsf(start_angle);
 
     int x0 = YARL_CLAMP(cx - r, 0, yarl->width);
     int y0 = YARL_CLAMP(cy - r, 0, yarl->height);
@@ -178,13 +172,13 @@ void yarl_draw_arc(
             int mx = x - cx;
             int my = cy - y;
 
-            float angle = rotation_angle_around_center(mx, my);
+            float angle = rotation_angle_around_center(env, mx, my);
 
             for (float a=start_angle; a < start_angle + rot_count; ++a) {
 
                 // coordinates of arc outline
-                int xo = r * cos(YARL_DEG_TO_RAD(a));
-                int yo = r * sin(YARL_DEG_TO_RAD(a));
+                int xo = r * env.cos(YARL_DEG_TO_RAD(a));
+                int yo = r * env.sin(YARL_DEG_TO_RAD(a));
 
                 int leno = xo*xo + yo*yo;
                 int len  = mx*mx + my*my;
@@ -249,6 +243,7 @@ void yarl_draw_line(Yarl *yarl, int x0, int y0, int x1, int y1, YarlColor color)
 }
 
 void yarl_draw_line_thick(Yarl *yarl, int x0, int y0, int x1, int y1, YarlColor color, int thickness) {
+    YarlEnvironment env = yarl->env;
 
     float dy = y1 - y0;
     float dx = x1 - x0;
@@ -262,10 +257,10 @@ void yarl_draw_line_thick(Yarl *yarl, int x0, int y0, int x1, int y1, YarlColor 
 
     float m = dy / dx;
     // the needed precision for rendering lines
-    float step = fabsf(dx / yarl->width);
+    float step = env.fabsf(dx / yarl->width);
     int start = YARL_MIN(x0, x1);
 
-    for (float x=start; x < start + fabsf(dx); x += step) {
+    for (float x=start; x < start + env.fabsf(dx); x += step) {
         float y = m * (x - x0) + y0;
         yarl_draw_circle(yarl, x, y, thickness, color);
     }
@@ -297,6 +292,10 @@ void yarl_draw_triangle(Yarl *yarl, int x0, int y0, int x1, int y1, int x2, int 
         }
     }
 
+}
+
+void yarl_draw_text(Yarl *yarl, int x, int y, const char *text) {
+    // TODO:
 }
 
 YarlColor yarl_lerp_color(YarlColor a, YarlColor b, float t) {

@@ -6,7 +6,7 @@ if [[ $# != 0 && $1 == "live" ]]; then
 else
     make -BC yarl
     cc -c main.c
-    cc -static main.o ./yarl/libyarl.a -I./yarl -o main -no-pie
+    cc -static main.o ./yarl/libyarl.a -I./yarl -o main -no-pie -lm
     # ~/opt/x86_64/bin/x86_64-elf-gcc -ffreestanding -I./yarl -o main main.c -nostdlib ./yarl/libyarl.a
     ./main
 fi

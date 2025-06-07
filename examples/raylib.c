@@ -11,7 +11,8 @@
 
 int main(void) {
 
-    Yarl *yarl = yarl_init(500, 500);
+    unsigned char *buffer = malloc(500 * 500 * 4);
+    Yarl *yarl = yarl_init(buffer, 500, 500, YARL_COLOR_FORMAT_RGBA);
     assert(yarl != NULL);
 
     SetTraceLogLevel(LOG_ERROR);
@@ -47,7 +48,7 @@ int main(void) {
     }
 
     CloseWindow();
+    free(buffer);
 
-    yarl_destroy(yarl);
-
+    return 0;
 }

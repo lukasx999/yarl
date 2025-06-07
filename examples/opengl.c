@@ -63,7 +63,8 @@ typedef struct {
 
 int main(void) {
 
-    Yarl *yarl = yarl_init(CANVAS_WIDTH, CANVAS_HEIGHT, YARL_COLOR_FORMAT_RGBA);
+    unsigned char *buffer = malloc(CANVAS_WIDTH * CANVAS_HEIGHT * 4);
+    Yarl *yarl = yarl_init(buffer, CANVAS_WIDTH, CANVAS_HEIGHT, YARL_COLOR_FORMAT_RGBA);
     assert(yarl != NULL);
     triangles(yarl);
 
@@ -162,7 +163,7 @@ int main(void) {
     glDeleteTextures(1, &tex_canvas);
     glfwDestroyWindow(window);
     glfwTerminate();
-    yarl_destroy(yarl);
+    free(buffer);
 
     return 0;
 }

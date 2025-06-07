@@ -1,16 +1,21 @@
 #ifndef _YARL_H
 #define _YARL_H
 
+#include <stddef.h>
+#include <stdbool.h>
+#include <stdint.h>
+
+
 //
 // Yarl Color Utilities
 //
 
-// Generic, format agnostic color type
+// Generic, format-agnostic color type
 typedef struct {
     unsigned char r; // red
     unsigned char g; // green
     unsigned char b; // blue
-    unsigned char a; // alpha (may be neglected if not present withing to current format)
+    unsigned char a; // alpha (may be neglected if not present withing the current format)
 } YarlColor;
 
 typedef enum {
@@ -46,20 +51,42 @@ typedef enum {
 // Yarl Types
 //
 
-typedef struct Yarl Yarl;
+typedef struct {
+    float (*floorf)(float);
+    float (*fabsf)(float);
+    float (*fmodf)(float, float);
+    float (*atanf)(float);
+    double (*sin)(double);
+    double (*cos)(double);
+    __attribute__((noreturn)) void (*panic)(void);
+} YarlEnvironment;
 
+typedef struct {
+    int width, height;
+    // byte canvas - could represent any color format
+    // use the associated functions from `formats.h` for extracting color values
+    unsigned char *buffer;
+    YarlColorFormat format;
+    YarlEnvironment env;
+} Yarl;
 
 //
 // Yarl State Management
 //
 
-// Returns NULL on failure
-Yarl          *yarl_init_buffer(unsigned char *canvas, int width, int height, YarlColorFormat format);
-YarlColor      yarl_get_pixel   (const Yarl *yarl, int x, int y);
+void yarl_init(
+    Yarl *yarl,
+    unsigned char *buffer,
+    int width,
+    int height,
+    YarlColorFormat format,
+    YarlEnvironment env
+);
+YarlColor yarl_get_pixel(const Yarl *yarl, int x, int y);
 unsigned char *yarl_get_buffer(const Yarl *yarl);
-int            yarl_get_width   (const Yarl *yarl);
-int            yarl_get_height  (const Yarl *yarl);
-int            yarl_get_format_stride(YarlColorFormat format);
+int yarl_get_width(const Yarl *yarl);
+int yarl_get_height(const Yarl *yarl);
+int yarl_get_format_stride(YarlColorFormat format);
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -89,9 +116,9 @@ void yarl_draw_triangle         (Yarl *yarl, int x0, int y0, int x1, int y1, int
 
 #define YARL_PI 3.14159265358979323846
 
+// TODO: add check for min > max
 #define YARL_CLAMP(value, min, max) \
-    (assert(min <= max), \
-    (value) > (max) ? (max) : (value) < (min) ? (min) : (value))
+    ((value) > (max) ? (max) : (value) < (min) ? (min) : (value))
 
 #define YARL_LERP(a, b, t) \
     ((a) + (t) * ((b) - (a)))

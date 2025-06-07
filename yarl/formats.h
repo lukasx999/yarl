@@ -1,8 +1,9 @@
 #ifndef _FORMATS_H
 #define _FORMATS_H
 
-#include <assert.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
 
 #include "yarl.h"
 
@@ -50,8 +51,6 @@ static inline YarlColor color_from_buffer(unsigned char *buffer, YarlColorFormat
             .g = buffer[1],
             .b = buffer[0],
         };
-        default:
-            assert(!"unknown color format");
     }
 }
 
@@ -92,8 +91,6 @@ static inline void color_to_buffer(unsigned char *buffer, YarlColor color, YarlC
             buffer[1] = color.g;
             buffer[0] = color.b;
             break;
-        default:
-            assert(!"unknown color format");
     }
 }
 
