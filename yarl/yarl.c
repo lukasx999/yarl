@@ -6,6 +6,8 @@
 
 #include "formats.h"
 
+// TODO: compile library in freestanding mode
+
 
 void yarl_init(
     Yarl *yarl,
