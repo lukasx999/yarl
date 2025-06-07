@@ -1,11 +1,12 @@
-CC=cc
-CFLAGS=-Wall -Wextra -std=c11 -pedantic -ggdb -Og
+# CC=cc
+CC=~/opt/x86_64/bin/x86_64-elf-gcc
+CFLAGS=-ffreestanding -Wall -Wextra -std=c11 -pedantic -ggdb -O0
 WEBCC=clang
 WEBFLAGS=-Wall -Wextra -std=c11 -pedantic -ggdb -Og --target=wasm32-wasi --sysroot=/usr/share/wasi-sysroot/ --no-standard-libraries
 AR=ar
 ARFLAGS=rcs
 OBJS=yarl.o
-DEPS=yarl.h formats.h
+DEPS=yarl.h
 
 static: libyarl.a
 shared: libyarl.so

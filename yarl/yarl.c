@@ -4,9 +4,87 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "formats.h"
 
-// TODO: compile library in freestanding mode
+
+// create a color struct from the given binary buffer, obeying the given `format`
+static YarlColor color_from_buffer(unsigned char *buffer, YarlColorFormat format) {
+    switch (format) {
+        case YARL_COLOR_FORMAT_ARGB: return (YarlColor) {
+            .a = buffer[0],
+            .r = buffer[1],
+            .g = buffer[2],
+            .b = buffer[3],
+        };
+        case YARL_COLOR_FORMAT_ABGR: return (YarlColor) {
+            .a = buffer[0],
+            .r = buffer[3],
+            .g = buffer[2],
+            .b = buffer[1],
+        };
+        case YARL_COLOR_FORMAT_RGBA: return (YarlColor) {
+            .r = buffer[0],
+            .g = buffer[1],
+            .b = buffer[2],
+            .a = buffer[3],
+        };
+        case YARL_COLOR_FORMAT_BGRA: return (YarlColor) {
+            .r = buffer[2],
+            .g = buffer[1],
+            .b = buffer[0],
+            .a = buffer[3],
+        };
+        case YARL_COLOR_FORMAT_RGB: return (YarlColor) {
+            .r = buffer[0],
+            .g = buffer[1],
+            .b = buffer[2],
+        };
+        case YARL_COLOR_FORMAT_BGR: return (YarlColor) {
+            .r = buffer[2],
+            .g = buffer[1],
+            .b = buffer[0],
+        };
+    }
+}
+
+// Writes `color` into `buffer`, obeying the given `format`
+static void color_to_buffer(unsigned char *buffer, YarlColor color, YarlColorFormat format) {
+    switch (format) {
+        case YARL_COLOR_FORMAT_ARGB:
+            buffer[0] = color.a;
+            buffer[1] = color.r;
+            buffer[2] = color.g;
+            buffer[3] = color.b;
+            break;
+        case YARL_COLOR_FORMAT_ABGR:
+            buffer[0] = color.a;
+            buffer[3] = color.r;
+            buffer[2] = color.g;
+            buffer[1] = color.b;
+            break;
+        case YARL_COLOR_FORMAT_RGBA:
+            buffer[0] = color.r;
+            buffer[1] = color.g;
+            buffer[2] = color.b;
+            buffer[3] = color.a;
+            break;
+        case YARL_COLOR_FORMAT_BGRA:
+            buffer[2] = color.r;
+            buffer[1] = color.g;
+            buffer[0] = color.b;
+            buffer[3] = color.a;
+            break;
+        case YARL_COLOR_FORMAT_RGB:
+            buffer[0] = color.r;
+            buffer[1] = color.g;
+            buffer[2] = color.b;
+            break;
+        case YARL_COLOR_FORMAT_BGR:
+            buffer[2] = color.r;
+            buffer[1] = color.g;
+            buffer[0] = color.b;
+            break;
+    }
+}
 
 
 void yarl_init(
@@ -154,7 +232,6 @@ void yarl_draw_arc(
     float rot_count,
     YarlColor color
 ) {
-
     YarlEnvironment env = yarl->env;
 
     start_angle = env.fmodf(start_angle, 360.);
