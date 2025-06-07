@@ -55,15 +55,10 @@ typedef struct Yarl Yarl;
 
 // Returns NULL on failure
 Yarl          *yarl_init_buffer(unsigned char *canvas, int width, int height, YarlColorFormat format);
-// Returns NULL on failure
-// Allocates a new (zeroed) buffer using malloc()
-Yarl          *yarl_init(int width, int height, YarlColorFormat format);
 YarlColor      yarl_get_pixel   (const Yarl *yarl, int x, int y);
 unsigned char *yarl_get_buffer(const Yarl *yarl);
 int            yarl_get_width   (const Yarl *yarl);
 int            yarl_get_height  (const Yarl *yarl);
-// should only be called if automatic initialization was chosen using yarl_init()
-void           yarl_destroy     (Yarl *yarl);
 int            yarl_get_format_stride(YarlColorFormat format);
 
 

@@ -1,10 +1,7 @@
 #include "yarl.h"
 
-#include <stdlib.h>
-#include <assert.h>
-#include <stdio.h>
+#include <stddef.h>
 #include <stdint.h>
-#include <string.h>
 #include <stdbool.h>
 #include <math.h>
 
@@ -22,28 +19,14 @@ struct Yarl {
 
 Yarl *yarl_init_buffer(unsigned char *buffer, int width, int height, YarlColorFormat format) {
 
-    Yarl *yarl = malloc(sizeof(Yarl));
-    if (yarl == NULL)
-        return NULL;
+    static Yarl yarl;
 
-    yarl->height = height;
-    yarl->width  = width;
-    yarl->buffer = buffer;
-    yarl->format = format;
+    yarl.height = height;
+    yarl.width  = width;
+    yarl.buffer = buffer;
+    yarl.format = format;
 
-    return yarl;
-}
-
-Yarl *yarl_init(int width, int height, YarlColorFormat format) {
-
-    size_t size = width * height;
-    unsigned char *buffer = malloc(size * yarl_get_format_stride(format));
-    if (buffer == NULL)
-        return NULL;
-
-    memset(buffer, 0x0, size);
-
-    return yarl_init_buffer(buffer, width, height, format);
+    return &yarl;
 }
 
 static unsigned char *buffer_offset(const Yarl *yarl, int x, int y) {
@@ -88,21 +71,18 @@ int yarl_get_format_stride(YarlColorFormat format) {
     }
 }
 
-void yarl_destroy(Yarl *yarl) {
-    free(yarl->buffer);
-}
-
 void yarl_draw_pixel(Yarl *yarl, int x, int y, YarlColor color) {
 
-    if (x >= yarl->width) {
-        fprintf(stderr, "YARL WARNING: x-index is out of bounds.\n");
-        fprintf(stderr, "Width: %d, x: %d\n", yarl->width, x);
-    }
-
-    if (y >= yarl->height) {
-        fprintf(stderr, "YARL WARNING: y-index is out of bounds.\n");
-        fprintf(stderr, "Height: %d, y: %d\n", yarl->height, y);
-    }
+    // TODO:
+    // if (x >= yarl->width) {
+    //     fprintf(stderr, "YARL WARNING: x-index is out of bounds.\n");
+    //     fprintf(stderr, "Width: %d, x: %d\n", yarl->width, x);
+    // }
+    //
+    // if (y >= yarl->height) {
+    //     fprintf(stderr, "YARL WARNING: y-index is out of bounds.\n");
+    //     fprintf(stderr, "Height: %d, y: %d\n", yarl->height, y);
+    // }
 
     color_to_buffer(buffer_offset(yarl, x, y), color, yarl->format);
 }
@@ -159,18 +139,6 @@ void yarl_draw_arc_outline(Yarl *yarl, int cx, int cy, int r, float start_angle,
 // `````````````````````|```````````````````
 // ````````````````````90°``````````````````
 // ````````````````````````````````````````
-// float rotation_angle_around_center(int x, int y) {
-//     float angle = floorf(YARL_RAD_TO_DEG(atanf((float) y / x)));
-//     if (y > 0.)
-//         angle = 360. - angle;
-//
-//     if (x < 0.)
-//         angle = 180. - angle;
-//
-//     angle = fabsf(angle);
-//     return angle;
-// }
-
 static float rotation_angle_around_center(int x, int y) {
     float angle = floorf(YARL_RAD_TO_DEG(atanf((float) y / x)));
     if (y > 0.)

@@ -1,7 +1,7 @@
 CC=cc
-CFLAGS=-Wall -Wextra -std=c11 -pedantic -ggdb -O0
+CFLAGS=-Wall -Wextra -std=c11 -pedantic -ggdb -Og
 WEBCC=clang
-WEBFLAGS=-Wall -Wextra -std=c11 -pedantic -ggdb -O0 --target=wasm32-wasi --sysroot=/usr/share/wasi-sysroot/ --no-standard-libraries
+WEBFLAGS=-Wall -Wextra -std=c11 -pedantic -ggdb -Og --target=wasm32-wasi --sysroot=/usr/share/wasi-sysroot/ --no-standard-libraries
 LIBS=-lm
 AR=ar
 ARFLAGS=rcs
@@ -13,8 +13,8 @@ shared: libyarl.so
 all: shared static test
 
 # TODO: add conditional for cc flags
-CC=$(WEBCC)
-CFLAGS=$(WEBFLAGS)
+# CC=$(WEBCC)
+# CFLAGS=$(WEBFLAGS)
 web: libyarl.a
 
 
